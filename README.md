@@ -1,6 +1,6 @@
 # Backend Proyecto
 
-## Tecnologías en uso
+## Tecnologias en uso
 * MongoDB
 * FastAPI
 * Python

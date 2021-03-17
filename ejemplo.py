@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from odmantic import AIOEngine, Model, ObjectId
 
 
+
 class Tree(Model):
     name: str
     average_size: float

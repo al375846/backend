@@ -1,10 +1,27 @@
-from app.enums.suscripcion import TipoSuscripcion
-from typing import Optional
-from app.models.user import User
+from pydantic.main import BaseModel
+from app.models.suscripcion import Suscripcion
+from pydantic.networks import EmailStr
+from typing import List, Optional
+from odmantic import Model
+from pydantic import root_validator
+from app.db.db import db
 
 
-class Gerente(User):
-    suscripciones: Optional[list[TipoSuscripcion]]
+class Gerente(Model):
+    nombre: str
+    apellidos: str
+    email: EmailStr
+    telefono: str
+    password: str
+    username: str
+    suscripciones: Optional[List[Suscripcion]]
 
-if __name__=='__main__':
-    print(Gerente.schema_json())
+class RegistroGerente(BaseModel):
+    nombre: str
+    apellidos: str
+    username: str
+    email: EmailStr
+    telefono: str
+    password: str
+
+

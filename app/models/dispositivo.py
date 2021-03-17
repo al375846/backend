@@ -1,11 +1,11 @@
 from app.enums.tipodispositivo import TipoDispositivo
-from app.models.db_base import DbBase
-from datetime import date
+from datetime import datetime
+from odmantic import Model
 
 
-class Dispositivo(DbBase):
+class Dispositivo(Model):
     modelo: str
-    fechaRegistro: date
+    fechaRegistro: datetime
     activado: bool
     conectado: bool
     tipo: TipoDispositivo

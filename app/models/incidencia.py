@@ -1,7 +1,7 @@
-from app.models.db_base import DbBase
+from odmantic import Model
 from pydantic import EmailStr
 
-class Incidencia(DbBase):
+class Incidencia(Model):
     titulo: str
     cuerpo: str
     email_origen: EmailStr

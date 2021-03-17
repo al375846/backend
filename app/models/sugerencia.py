@@ -1,6 +1,6 @@
-from app.models.db_base import DbBase
+from odmantic import Model
 
-class Sugerencia(DbBase):
+class Sugerencia(Model):
     identificador: str
     contenido: str
     resolucion: bool

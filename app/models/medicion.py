@@ -1,8 +1,7 @@
-from app.models.db_base import DbBase
-from pydantic import EmailStr
-from datetime import date
 
-class Medicion(DbBase):
+from datetime import datetime
+from odmantic import Model
+class Medicion(Model):
     identificador: str
-    fecha: date
+    fecha: datetime
     contenido: str

@@ -1,12 +1,12 @@
-from datetime import date
+from datetime import datetime
 from typing import Optional
 from app.enums.suscripcion import TipoSuscripcion
-from pydantic import BaseModel, Field
+from odmantic import Model
 
 
-class Suscripcion(BaseModel):
+class Suscripcion(Model):
     tipo: TipoSuscripcion
-    fecha_ini: date
+    fecha_ini: datetime
     fecha_fin: Optional[date] = Field(None)
     
 

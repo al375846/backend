@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import datetime
 from app.models.user import User
 
 
 class Administrador(User):
-    fecha_contratacion: date
+    fecha_contratacion: datetime

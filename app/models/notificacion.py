@@ -1,9 +1,10 @@
-from app.models.db_base import DbBase
-from datetime import date
+
+from datetime import datetime
+from odmantic import Model
 from pydantic import HttpUrl
 
-class Notificacion(DbBase):
-    fechaActivacion: date
+class Notificacion(Model):
+    fechaActivacion: datetime
     contenido: str
     leido: bool
     imagen: HttpUrl

@@ -2,6 +2,7 @@ from typing import Optional
 
 from bson import ObjectId
 from pydantic import BaseModel, Field
+from odmantic import Model
 
 
 class PyObjectId(ObjectId):
@@ -20,7 +21,7 @@ class PyObjectId(ObjectId):
         field_schema.update(type='string')
 
 
-class DbBase(BaseModel):
+class DbBase(Model):
     id: Optional[PyObjectId] = Field(alias="_id")
 
     class Config:

@@ -1,6 +1,6 @@
-from app.models.db_base import DbBase
+from odmantic import Model
 
-class Establecimiento(DbBase):
+class Establecimiento(Model):
     identificador: str
     direccion: str
     aforo: int

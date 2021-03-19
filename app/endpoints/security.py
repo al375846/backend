@@ -4,9 +4,11 @@ from pydantic import EmailStr
 from starlette import status
 
 from app.db.db import db
+from app.enums import user_type
+from app.enums.user_type import UserType
 from app.models.administrador import Administrador
 from app.models.gerente import Gerente
-from app.models.registro import Registro
+from app.models.registro import Registro, LoginReturn
 from app.models.user_data import UserData, LoginData
 from app.utils.security import authenticate_admin, generate_token, authenticate_gerente, encripta_pwd, \
     get_current_gerente, get_current_admin
@@ -82,16 +84,17 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.post("/login")
+@router.post("/login",response_model=LoginReturn)
 async def login(login_data: LoginData):
     gerente = await authenticate_gerente(login_data.email, login_data.password)
     admin = await authenticate_admin(login_data.email, login_data.password)
     if not admin and not gerente:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    token = None
+    lrt = LoginReturn(access_token="", token_type="bearer", user_type=UserType.gerente)
     if admin:
-        token = generate_token(admin)
+        lrt.access_token = generate_token(admin)
+        lrt.user_type = UserType.administrador
     elif gerente:
-        token = generate_token(gerente)
+        lrt.access_token = generate_token(gerente)
 
-    return {"access_token": token, "token_type": "bearer"}
+    return lrt

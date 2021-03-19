@@ -7,9 +7,6 @@ router = APIRouter()
 
 @router.post("/dispositivo")
 async def post_dispositivo(dispositivo: DispositivoCreate):
-    disp = DispositivoDB(
-        fechaRegistro=datetime.now(),
-        **dispositivo.dict()
-    )
+    disp = DispositivoDB(**dispositivo.dict())
     await db.save(disp)
     return disp

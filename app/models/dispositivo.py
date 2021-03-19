@@ -6,7 +6,7 @@ from pydantic.main import BaseModel
 
 class DispositivoDB(Model):
     modelo: str
-    fechaRegistro: datetime
+    fechaRegistro: datetime = datetime.now()
     activado: bool
     conectado: bool
     tipo: TipoDispositivo

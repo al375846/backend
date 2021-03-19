@@ -16,12 +16,6 @@ class Gerente(Model):
     username: str
     suscripciones: Optional[List[Suscripcion]]
 
-class RegistroGerente(BaseModel):
-    nombre: str
-    apellidos: str
-    username: str
-    email: EmailStr
-    telefono: str
-    password: str
+
 
 

@@ -5,6 +5,7 @@ from datetime import datetime
 
 router = APIRouter()
 
+
 @router.post("/dispositivo")
 async def post_dispositivo(dispositivo: DispositivoCreate):
     disp = DispositivoDB(**dispositivo.dict())

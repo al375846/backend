@@ -1,3 +1,4 @@
+from abc import ABC
 from datetime import datetime
 
 from pydantic.networks import EmailStr
@@ -12,4 +13,4 @@ class Administrador(Model):
     telefono: str
     username: str
     password: str
-    fecha_contratacion: datetime
+    fecha_contratacion: datetime = datetime.now()

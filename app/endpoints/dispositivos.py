@@ -8,11 +8,8 @@ router = APIRouter()
 @router.post("/dispositivo")
 async def post_dispositivo(dispositivo: DispositivoCreate):
     disp = DispositivoDB(
-        modelo=dispositivo.modelo,
         fechaRegistro=datetime.now(),
-        activado=dispositivo.activado,
-        conectado=dispositivo.conectado,
-        tipo=dispositivo.tipo
+        **dispositivo.dict()
     )
     await db.save(disp)
     return disp

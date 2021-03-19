@@ -9,9 +9,10 @@ from fastapi.security import OAuth2PasswordBearer
 from app.db.db import db
 from app.models.gerente import Gerente, RegistroGerente
 from app.endpoints.dispositivos import router as router_dispositivos
-
+from app.endpoints.establecimientos import router as router_establecimientos
 app = FastAPI()
 
 app.include_router(router_dispositivos)
 
+app.include_router(router_establecimientos)
 

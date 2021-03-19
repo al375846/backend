@@ -11,9 +11,9 @@
 python -m venv <path_to_virtualenviorment>/<virtualenviorment_name>
 
 * Activa el virtualenviorment
-# Ubuntu y Mac
+### Ubuntu y Mac
 source <path_to_virtualenviorment>/bin/activate
-# Windows
+### Windows
 <path_to_virtualenviorment>\Scripts\Activate.ps1
 
 * Ejecuta pip install -r <path_to>/requirements.txt

@@ -7,7 +7,7 @@ from app.db.db import db
 from app.models.administrador import Administrador
 from app.models.gerente import Gerente
 from app.models.registro import Registro
-from app.models.user_data import UserData
+from app.models.user_data import UserData, LoginData
 from app.utils.security import authenticate_admin, generate_token, authenticate_gerente, encripta_pwd, \
     get_current_gerente, get_current_admin
 
@@ -68,9 +68,24 @@ async def index(admin: Administrador = Depends(get_current_admin)):
 
 
 @router.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def token(form_data: OAuth2PasswordRequestForm = Depends()):
     admin = await authenticate_admin(form_data.username, form_data.password)
     gerente = await authenticate_gerente(form_data.username, form_data.password)
+    if not admin and not gerente:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    token = None
+    if admin:
+        token = generate_token(admin)
+    elif gerente:
+        token = generate_token(gerente)
+
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.post("/login")
+async def login(login_data: LoginData):
+    gerente = await authenticate_gerente(login_data.email, login_data.password)
+    admin = await authenticate_admin(login_data.email, login_data.password)
     if not admin and not gerente:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     token = None

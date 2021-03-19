@@ -7,3 +7,8 @@ class UserData(BaseModel):
     username: str
     email: EmailStr
     telefono: str
+
+
+class LoginData(BaseModel):
+    email: EmailStr
+    password: str

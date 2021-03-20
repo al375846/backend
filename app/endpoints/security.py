@@ -13,7 +13,8 @@ from app.models.user_data import UserData, LoginData
 from app.utils.security import authenticate_admin, generate_token, authenticate_gerente, encripta_pwd, \
     get_current_gerente, get_current_admin
 
-router = APIRouter(prefix="/security")
+router = APIRouter(prefix="/security",
+                   tags=["Security"])
 
 
 @router.post("/registra_gerente", response_model=Gerente)
@@ -84,7 +85,7 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.post("/login",response_model=LoginReturn)
+@router.post("/login", response_model=LoginReturn)
 async def login(login_data: LoginData):
     gerente = await authenticate_gerente(login_data.email, login_data.password)
     admin = await authenticate_admin(login_data.email, login_data.password)

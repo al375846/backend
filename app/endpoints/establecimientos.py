@@ -12,7 +12,7 @@ router = APIRouter()
 async def crear_establecimiento(establecimiento: Establecimiento,gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = EstablecimientoDB(**establecimiento.dict())
 
-    await db.save(establecimiento)
+    await db.motor.save(establecimiento)
     return establecimiento
 
 """

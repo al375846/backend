@@ -22,7 +22,7 @@ async def index(gerente: Registro):
     await check_unique_email(gerente)
     gerente.password = encripta_pwd(gerente.password)
     gdb = Gerente(**gerente.dict())
-    await db.save(gdb)
+    await db.motor.save(gdb)
     return gdb
 
 
@@ -31,31 +31,31 @@ async def index(admin: Registro, _=Depends(get_current_admin)):
     await check_unique_email(admin)
     admin.password = encripta_pwd(admin.password)
     gdb = Administrador(**admin.dict())
-    await db.save(gdb)
+    await db.motor.save(gdb)
     return gdb
 
 
 @router.delete("/baja_gerente", response_model=UserData)
 async def baja_gerente(email_baja: EmailStr, _=Depends(get_current_admin)):
-    gerente = await db.find_one(Gerente, Gerente.email == email_baja)
+    gerente = await db.motor.find_one(Gerente, Gerente.email == email_baja)
     if gerente is None:
         raise HTTPException(detail="Usuario no existe", status_code=status.HTTP_404_NOT_FOUND)
-    await db.delete(gerente)
+    await db.motor.delete(gerente)
     return gerente
 
 
 @router.delete("/baja_admin", response_model=UserData)
 async def baja_admin(email_baja: EmailStr, _=Depends(get_current_admin)):
-    admin = await db.find_one(Administrador, Administrador.email == email_baja)
+    admin = await db.motor.find_one(Administrador, Administrador.email == email_baja)
     if admin is None:
         raise HTTPException(detail="Usuario no existe", status_code=status.HTTP_404_NOT_FOUND)
-    await db.delete(admin)
+    await db.motor.delete(admin)
     return admin
 
 
 async def check_unique_email(user: Registro):
-    n1 = len(await db.find(Administrador, Administrador.email == user.email))
-    n2 = len(await db.find(Gerente, Gerente.email == user.email))
+    n1 = len(await db.motor.find(Administrador, Administrador.email == user.email))
+    n2 = len(await db.motor.find(Gerente, Gerente.email == user.email))
     if n1 + n2 > 0:
         raise HTTPException(detail="email repetido", status_code=status.HTTP_409_CONFLICT)
 

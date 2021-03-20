@@ -24,7 +24,7 @@ async def get_current_gerente(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
 
-        gerente = await db.find_one(Gerente, Gerente.id == ObjectId(payload.get("id")))
+        gerente = await db.motor.find_one(Gerente, Gerente.id == ObjectId(payload.get("id")))
     except:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -50,7 +50,7 @@ def encripta_pwd(pwd: str):
 
 
 async def authenticate_admin(email: str, password: str):
-    admin = await db.find_one(Administrador, Administrador.email == email)
+    admin = await db.motor.find_one(Administrador, Administrador.email == email)
     if not admin:
         return False
     if not verify_pwd(password, admin.password):
@@ -59,7 +59,7 @@ async def authenticate_admin(email: str, password: str):
 
 
 async def authenticate_gerente(email: str, password: str):
-    gerente = await db.find_one(Gerente, Gerente.email == email)
+    gerente = await db.motor.find_one(Gerente, Gerente.email == email)
     if not gerente:
         return False
     if not verify_pwd(password, gerente.password):
@@ -70,7 +70,7 @@ async def authenticate_gerente(email: str, password: str):
 async def get_current_admin(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-        admin = await db.find_one(Administrador, Administrador.id == ObjectId(payload.get("id")))
+        admin = await db.motor.find_one(Administrador, Administrador.id == ObjectId(payload.get("id")))
     except:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

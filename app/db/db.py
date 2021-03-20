@@ -1,3 +1,4 @@
+from typing import Any
 
 from app.config import MONGO_URL
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -5,6 +6,22 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from odmantic import AIOEngine
 
 
-client = AsyncIOMotorClient(MONGO_URL)
+class DbData:
+    client: AsyncIOMotorClient
+    motor: AIOEngine
 
-db = AIOEngine(motor_client=client, database="syskaoh")
+
+db = DbData()
+
+
+
+async def start_db():
+    global db
+    db.client = AsyncIOMotorClient(MONGO_URL)
+    db.motor = AIOEngine(motor_client=db.client, database="syskaoh")
+    print("db connexion established")
+
+
+async def close_mongo_connection():
+    db.client.close()
+    print("db connexion closed")

@@ -1,9 +1,7 @@
-from abc import ABC
 from datetime import datetime
 
-from pydantic.networks import EmailStr
-
 from odmantic import Model
+from pydantic.networks import EmailStr
 
 
 class Administrador(Model):

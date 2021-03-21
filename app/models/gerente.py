@@ -1,10 +1,9 @@
-from pydantic.main import BaseModel
-from app.models.suscripcion import Suscripcion
-from pydantic.networks import EmailStr
 from typing import List, Optional
+
 from odmantic import Model
-from pydantic import root_validator
-from app.db.db import db
+from pydantic.networks import EmailStr
+
+from app.models.suscripcion import Suscripcion
 
 
 class Gerente(Model):
@@ -15,7 +14,3 @@ class Gerente(Model):
     password: str
     username: str
     suscripciones: Optional[List[Suscripcion]]
-
-
-
-

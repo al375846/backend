@@ -2,18 +2,19 @@ import jwt
 from bson import ObjectId
 from fastapi import Depends, status
 from fastapi.exceptions import HTTPException
-from odmantic import Model
-
-from app.config import JWT_SECRET
 from fastapi.security import OAuth2PasswordBearer
+from odmantic import Model
 from passlib.hash import bcrypt
 
+from app.config import JWT_SECRET
 from app.db.db import db
 from app.models.administrador import Administrador
 from app.models.gerente import Gerente
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/security/token')
-#oauth2_scheme_admin = OAuth2PasswordBearer(tokenUrl='/security/token_admin')
+
+
+# oauth2_scheme_admin = OAuth2PasswordBearer(tokenUrl='/security/token_admin')
 
 
 def verify_pwd(password, hashed_password):

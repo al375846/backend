@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
 from starlette import status
@@ -55,8 +55,8 @@ async def baja_admin(email_baja: EmailStr, _=Depends(get_current_admin)):
     return admin
 
 
-@router.get("/existe_email/{email}", response_model=ExistsEmail)
-async def existe_email(email: EmailStr) -> ExistsEmail:
+@router.post("/existe_email", response_model=ExistsEmail)
+async def existe_email(email: EmailStr = Body(...)) -> ExistsEmail:
     n1 = len(await db.motor.find(Administrador, Administrador.email == email))
     n2 = len(await db.motor.find(Gerente, Gerente.email == email))
     if n1 + n2 > 0:

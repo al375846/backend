@@ -8,18 +8,14 @@ from app.utils.security import get_current_gerente
 router = APIRouter()
 
 
-@router.post("/alta_establecimiento")
-async def crear_establecimiento(establecimiento: Establecimiento,gerente: Gerente = Depends(get_current_gerente)):
+@router.post("/gerente/{id}/establecimiento_alta")
+async def crear_establecimiento(establecimiento: Establecimiento, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = EstablecimientoDB(**establecimiento.dict())
-
     await db.motor.save(establecimiento)
     return establecimiento
 
 """
-@router.delete("/establecimiento/{identificador}")
-async def borrar_establecimiento(
-    
-
-):
-    await db.delete(establecimiento.identificador)
+@router.delete("/establecimiento/baja/{identificador}")
+async def borrar_establecimiento(establecimiento):
+    await 
     """

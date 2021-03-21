@@ -1,9 +1,7 @@
-from typing import Any
+from motor.motor_asyncio import AsyncIOMotorClient
+from odmantic import AIOEngine
 
 from app.config import MONGO_URL
-from motor.motor_asyncio import AsyncIOMotorClient
-
-from odmantic import AIOEngine
 
 
 class DbData:
@@ -12,7 +10,6 @@ class DbData:
 
 
 db = DbData()
-
 
 
 async def start_db():

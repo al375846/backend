@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class TipoSuscripcion(str, Enum):
     edu = "EDU"
     host = "HOST"

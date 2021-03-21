@@ -1,5 +1,3 @@
-from typing import List
-from bson import ObjectId
 from odmantic import Model, Reference
 from pydantic.main import BaseModel
 

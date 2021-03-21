@@ -1,17 +1,19 @@
+from bson import ObjectId
 from fastapi import Depends, HTTPException
 from fastapi.routing import APIRouter
+from starlette import status
+
 from app.db.db import db
+from app.models.dispositivo import DispositivoDB
 from app.models.establecimiento import Establecimiento, EstablecimientoDB
 from app.models.gerente import Gerente
 from app.utils.security import get_current_gerente
-from app.models.dispositivo import DispositivoDB
-from bson import ObjectId
-from starlette import status
 
-router = APIRouter()
+router = APIRouter(prefix="/establecimiento",
+                   tags=["Gestion establecimiento"])
 
 
-@router.post("/establecimiento/alta")
+@router.post("/alta")
 async def crear_establecimiento(establecimiento_modelo: Establecimiento,
                                 gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = EstablecimientoDB(**establecimiento_modelo.dict(), gerente=gerente)
@@ -19,7 +21,7 @@ async def crear_establecimiento(establecimiento_modelo: Establecimiento,
     return establecimiento
 
 
-@router.delete("/establecimiento/{id}/baja")
+@router.delete("/{id}/baja")
 async def borrar_establecimiento(establecimiento_id: str, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
@@ -27,7 +29,7 @@ async def borrar_establecimiento(establecimiento_id: str, gerente: Gerente = Dep
     return establecimiento
 
 
-@router.put("/establecimiento/{id}/cambio/{aforo}")
+@router.put("/{establecimiento_id}/cambio/{aforo}")
 async def cambiar_establecimiento(establecimiento_id: str, aforo: int, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
@@ -36,7 +38,7 @@ async def cambiar_establecimiento(establecimiento_id: str, aforo: int, gerente: 
     return establecimiento
 
 
-@router.put("/establecimiento/{establecimiento_id}/dispositivo/{dispositivo_id}")
+@router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}")
 async def asignar_dispositivo(establecimiento_id: str, dispositivo_id: str,
                               gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))

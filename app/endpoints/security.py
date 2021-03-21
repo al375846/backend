@@ -55,7 +55,7 @@ async def baja_admin(email_baja: EmailStr, _=Depends(get_current_admin)):
     return admin
 
 
-@router.get("/existe_email", response_model=ExistsEmail)
+@router.get("/existe_email/{email}", response_model=ExistsEmail)
 async def existe_email(email: EmailStr) -> ExistsEmail:
     n1 = len(await db.motor.find(Administrador, Administrador.email == email))
     n2 = len(await db.motor.find(Gerente, Gerente.email == email))

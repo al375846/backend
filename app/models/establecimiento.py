@@ -1,7 +1,9 @@
 from typing import List
 from bson import ObjectId
-from odmantic import EmbeddedModel
+from odmantic import Model, Reference
 from pydantic.main import BaseModel
+
+from app.models.gerente import Gerente
 
 
 class Establecimiento(BaseModel):
@@ -10,8 +12,8 @@ class Establecimiento(BaseModel):
     aforo: int
 
 
-class EstablecimientoDB(EmbeddedModel):
+class EstablecimientoDB(Model):
     descriptor: str
     direccion: str
     aforo: int
-    dispositivos: List[ObjectId]
+    gerente: Gerente = Reference()

@@ -18,12 +18,22 @@ async def crear_establecimiento(establecimiento: Establecimiento, gerente: Geren
     return establecimiento_db
 
 
-@router.delete("/establecimiento/baja/{id}")
+@router.delete("/establecimiento/{id}/baja")
 async def borrar_establecimiento(id: str, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento_db = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(id))
     if establecimiento_db is None:
         raise HTTPException(detail="No existe", status_code=status.HTTP_404_NOT_FOUND)
     await db.motor.delete(establecimiento_db)
+    return establecimiento_db
+
+
+@router.put("/establecimiento/{id}/cambio/{aforo}")
+async def cambiar_establecimiento(id:str, aforo: int, gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento_db = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(id))
+    if establecimiento_db is None:
+        raise HTTPException(detail="No existe", status_code=status.HTTP_404_NOT_FOUND)
+    establecimiento_db.aforo = aforo
+    await db.motor.save(establecimiento_db)
     return establecimiento_db
 
 

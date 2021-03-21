@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from app.enums.user_type import UserType
 from app.models.user_data import UserData
@@ -16,3 +16,7 @@ class LoginReturn(BaseModel):
 
 class ExistsEmail(BaseModel):
     exists: bool
+
+
+class ExistsEmailRequest(BaseModel):
+    email: EmailStr

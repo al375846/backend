@@ -1,71 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import EmailStr
-from starlette import status
 
-from app.db.db import db
-from app.enums import user_type
 from app.enums.user_type import UserType
 from app.models.administrador import Administrador
 from app.models.gerente import Gerente
-from app.models.registro import Registro, LoginReturn, ExistsEmail, ExistsEmailRequest
-from app.models.user_data import UserData, LoginData
-from app.utils.security import authenticate_admin, generate_token, authenticate_gerente, encripta_pwd, \
-    get_current_gerente, get_current_admin
+from app.models.registro import LoginReturn
+from app.models.user_data import LoginData
+from app.utils.security import authenticate_admin, generate_token, authenticate_gerente, get_current_gerente, \
+    get_current_admin
 
 router = APIRouter(prefix="/security",
                    tags=["Security"])
-
-
-async def _existe_email(email: EmailStr):
-    n1 = len(await db.motor.find(Administrador, Administrador.email == email))
-    n2 = len(await db.motor.find(Gerente, Gerente.email == email))
-    if n1 + n2 > 0:
-        return True
-    return False
-
-
-@router.post("/registra_gerente", response_model=Gerente)
-async def registro_gerente(gerente: Registro):
-    if await _existe_email(gerente.email):
-        raise HTTPException(detail="email repetido", status_code=status.HTTP_409_CONFLICT)
-    gerente.password = encripta_pwd(gerente.password)
-    gdb = Gerente(**gerente.dict())
-    await db.motor.save(gdb)
-    return gdb
-
-
-@router.post("/registra_administrador", response_model=Administrador)
-async def registro_administrador(admin: Registro, _=Depends(get_current_admin)):
-    if await _existe_email(admin.email):
-        raise HTTPException(detail="email repetido", status_code=status.HTTP_409_CONFLICT)
-    admin.password = encripta_pwd(admin.password)
-    gdb = Administrador(**admin.dict())
-    await db.motor.save(gdb)
-    return gdb
-
-
-@router.delete("/baja_gerente", response_model=UserData)
-async def baja_gerente(email_baja: EmailStr, _=Depends(get_current_admin)):
-    gerente = await db.motor.find_one(Gerente, Gerente.email == email_baja)
-    if gerente is None:
-        raise HTTPException(detail="Usuario no existe", status_code=status.HTTP_404_NOT_FOUND)
-    await db.motor.delete(gerente)
-    return gerente
-
-
-@router.delete("/baja_admin", response_model=UserData)
-async def baja_admin(email_baja: EmailStr, _=Depends(get_current_admin)):
-    admin = await db.motor.find_one(Administrador, Administrador.email == email_baja)
-    if admin is None:
-        raise HTTPException(detail="Usuario no existe", status_code=status.HTTP_404_NOT_FOUND)
-    await db.motor.delete(admin)
-    return admin
-
-
-@router.post("/existe_email", response_model=ExistsEmail)
-async def existe_email(email: ExistsEmailRequest = Body(...)) -> ExistsEmail:
-    return ExistsEmail(exists=await _existe_email(email.email))
 
 
 @router.get("/gerente/yo", response_model=Gerente)

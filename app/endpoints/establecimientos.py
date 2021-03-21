@@ -12,37 +12,46 @@ router = APIRouter()
 
 
 @router.post("/establecimiento/alta")
-async def crear_establecimiento(establecimiento: Establecimiento, gerente: Gerente = Depends(get_current_gerente)):
-    establecimiento_db = EstablecimientoDB(**establecimiento.dict(), gerente=gerente)
-    await db.motor.save(establecimiento_db)
-    return establecimiento_db
+async def crear_establecimiento(establecimiento_modelo: Establecimiento,
+                                gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento = EstablecimientoDB(**establecimiento_modelo.dict(), gerente=gerente)
+    await db.motor.save(establecimiento)
+    return establecimiento
 
 
 @router.delete("/establecimiento/{id}/baja")
-async def borrar_establecimiento(id: str, gerente: Gerente = Depends(get_current_gerente)):
-    establecimiento_db = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(id))
-    if establecimiento_db is None:
-        raise HTTPException(detail="No existe", status_code=status.HTTP_404_NOT_FOUND)
-    await db.motor.delete(establecimiento_db)
-    return establecimiento_db
+async def borrar_establecimiento(establecimiento_id: str, gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+    valida(establecimiento=establecimiento, gerente_id=gerente.id)
+    await db.motor.delete(establecimiento)
+    return establecimiento
 
 
 @router.put("/establecimiento/{id}/cambio/{aforo}")
-async def cambiar_establecimiento(id:str, aforo: int, gerente: Gerente = Depends(get_current_gerente)):
-    establecimiento_db = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(id))
-    if establecimiento_db is None:
-        raise HTTPException(detail="No existe", status_code=status.HTTP_404_NOT_FOUND)
-    establecimiento_db.aforo = aforo
-    await db.motor.save(establecimiento_db)
-    return establecimiento_db
-
-
-@router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}")
-async def asignar_dispositivo(establecimiento_id:str, dispositivo_id:str, gerente: Gerente = Depends(get_current_gerente)):
+async def cambiar_establecimiento(establecimiento_id: str, aforo: int, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
-    if establecimiento.id != gerente.id:
-        raise HTTPException(detail="Ese establecimiento no pertenece al gerente actual", status_code=status.HTTP_409_CONFLICT)
+    valida(establecimiento=establecimiento, gerente_id=gerente.id)
+    establecimiento.aforo = aforo
+    await db.motor.save(establecimiento)
+    return establecimiento
+
+
+@router.put("/establecimiento/{establecimiento_id}/dispositivo/{dispositivo_id}")
+async def asignar_dispositivo(establecimiento_id: str, dispositivo_id: str,
+                              gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+    valida(establecimiento, gerente_id=gerente.id)
     disp = await db.motor.find_one(DispositivoDB, DispositivoDB.id == ObjectId(dispositivo_id))
     disp.establecimiento = establecimiento_id
     await db.motor.save(disp)
     return disp
+
+
+def valida(establecimiento, gerente_id):
+    if establecimiento is None:
+        raise HTTPException(detail="Ese establecimiento no existe", status_code=status.HTTP_404_NOT_FOUND)
+    if establecimiento.gerente.id != gerente_id:
+        print(establecimiento.gerente)
+        print(gerente_id)
+        raise HTTPException(detail="Ese establecimiento no pertenece al gerente actual",
+                            status_code=status.HTTP_409_CONFLICT)

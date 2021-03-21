@@ -8,7 +8,7 @@ from app.enums import user_type
 from app.enums.user_type import UserType
 from app.models.administrador import Administrador
 from app.models.gerente import Gerente
-from app.models.registro import Registro, LoginReturn
+from app.models.registro import Registro, LoginReturn, ExistsEmail
 from app.models.user_data import UserData, LoginData
 from app.utils.security import authenticate_admin, generate_token, authenticate_gerente, encripta_pwd, \
     get_current_gerente, get_current_admin
@@ -18,8 +18,9 @@ router = APIRouter(prefix="/security",
 
 
 @router.post("/registra_gerente", response_model=Gerente)
-async def index(gerente: Registro):
-    await check_unique_email(gerente)
+async def registro_gerente(gerente: Registro):
+    if (await existe_email(gerente.email)).exists:
+        raise HTTPException(detail="email repetido", status_code=status.HTTP_409_CONFLICT)
     gerente.password = encripta_pwd(gerente.password)
     gdb = Gerente(**gerente.dict())
     await db.motor.save(gdb)
@@ -27,8 +28,9 @@ async def index(gerente: Registro):
 
 
 @router.post("/registra_administrador", response_model=Administrador)
-async def index(admin: Registro, _=Depends(get_current_admin)):
-    await check_unique_email(admin)
+async def registro_administrador(admin: Registro, _=Depends(get_current_admin)):
+    if (await existe_email(admin.email)).exists:
+        raise HTTPException(detail="email repetido", status_code=status.HTTP_409_CONFLICT)
     admin.password = encripta_pwd(admin.password)
     gdb = Administrador(**admin.dict())
     await db.motor.save(gdb)
@@ -53,11 +55,13 @@ async def baja_admin(email_baja: EmailStr, _=Depends(get_current_admin)):
     return admin
 
 
-async def check_unique_email(user: Registro):
-    n1 = len(await db.motor.find(Administrador, Administrador.email == user.email))
-    n2 = len(await db.motor.find(Gerente, Gerente.email == user.email))
+@router.get("/existe_email", response_model=ExistsEmail)
+async def existe_email(email: EmailStr) -> ExistsEmail:
+    n1 = len(await db.motor.find(Administrador, Administrador.email == email))
+    n2 = len(await db.motor.find(Gerente, Gerente.email == email))
     if n1 + n2 > 0:
-        raise HTTPException(detail="email repetido", status_code=status.HTTP_409_CONFLICT)
+        return ExistsEmail(exists=True)
+    return ExistsEmail(exists=False)
 
 
 @router.get("/gerente/yo", response_model=Gerente)

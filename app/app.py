@@ -4,6 +4,7 @@ from starlette.responses import RedirectResponse
 from app.db.db import start_db, close_mongo_connection
 from app.endpoints.dispositivos import router as router_dispositivos
 from app.endpoints.establecimientos import router as router_establecimientos
+from app.endpoints.gestion import router as router_gestion
 from app.endpoints.security import router as router_security
 
 app = FastAPI()
@@ -14,6 +15,7 @@ app.add_event_handler("shutdown", close_mongo_connection)
 app.include_router(router_dispositivos)
 app.include_router(router_security)
 app.include_router(router_establecimientos)
+app.include_router(router_gestion)
 
 
 @app.get("/", include_in_schema=False)

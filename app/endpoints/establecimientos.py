@@ -11,17 +11,21 @@ from starlette import status
 router = APIRouter()
 
 
-@router.post("/gerente/{id}/establecimiento_alta")
+@router.post("/establecimiento/alta")
 async def crear_establecimiento(establecimiento: Establecimiento, gerente: Gerente = Depends(get_current_gerente)):
-    establecimiento = EstablecimientoDB(**establecimiento.dict(), gerente = gerente)
-    await db.motor.save(establecimiento)
-    return establecimiento
+    establecimiento_db = EstablecimientoDB(**establecimiento.dict(), gerente=gerente)
+    await db.motor.save(establecimiento_db)
+    return establecimiento_db
 
-"""
-@router.delete("/establecimiento/baja/{identificador}")
-async def borrar_establecimiento(establecimiento):
-    await 
-    """
+
+@router.delete("/establecimiento/baja/{id}")
+async def borrar_establecimiento(id: str, gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento_db = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(id))
+    if establecimiento_db is None:
+        raise HTTPException(detail="No existe", status_code=status.HTTP_404_NOT_FOUND)
+    await db.motor.delete(establecimiento_db)
+    return establecimiento_db
+
 
 @router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}")
 async def asignar_dispositivo(establecimiento_id:str, dispositivo_id:str, gerente: Gerente = Depends(get_current_gerente)):

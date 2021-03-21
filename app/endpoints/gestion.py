@@ -17,7 +17,7 @@ router = APIRouter(prefix="/gestion",
 
 
 @router.post("/registra_gerente", response_model=Gerente)
-async def registro_gerente(gerente: Registro):
+async def registro_gerente(gerente: Registro, _=Depends(get_current_admin)):
     if await existe_email(gerente.email):
         raise HTTPException(detail="email repetido", status_code=status.HTTP_409_CONFLICT)
     gerente.password = encripta_pwd(gerente.password)

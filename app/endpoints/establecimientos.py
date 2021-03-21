@@ -51,7 +51,5 @@ def valida(establecimiento, gerente_id):
     if establecimiento is None:
         raise HTTPException(detail="Ese establecimiento no existe", status_code=status.HTTP_404_NOT_FOUND)
     if establecimiento.gerente.id != gerente_id:
-        print(establecimiento.gerente)
-        print(gerente_id)
         raise HTTPException(detail="Ese establecimiento no pertenece al gerente actual",
                             status_code=status.HTTP_409_CONFLICT)

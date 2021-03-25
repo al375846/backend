@@ -13,8 +13,8 @@ while True:
         next_vc, frame = vc.read()
     img_name = str(datetime.now().time()) + '.jpg'
     imshow("Device0", frame)
-    imwrite(img_name, frame)
-    file = {'file': open('./' + img_name, 'rb')}
+    img = imencode(".jpg", frame)[1]
+    file = {'file': (img_name, img.tobytes(), 'image/jpeg', {'Expires': '0'})}
     r = requests.post(url, files=file)
     if waitKey(50) >= 0:
         break

@@ -25,6 +25,7 @@ async def crear_establecimiento(establecimiento_modelo: Establecimiento,
 async def obtener_establecimiento(establecimiento_id: str,
                                 gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+    valida(establecimiento=establecimiento, gerente_id=gerente.id)
     return establecimiento
 
 

@@ -21,7 +21,29 @@ async def crear_establecimiento(establecimiento_modelo: Establecimiento,
     return establecimiento
 
 
-@router.delete("/{id}/baja")
+@router.get("/{establecimiento_id}")
+async def obtener_establecimiento(establecimiento_id: str,
+                                gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+    valida(establecimiento=establecimiento, gerente_id=gerente.id)
+    return establecimiento
+
+
+@router.get("/todos")
+async def obtener_establecimientos(gerente: Gerente = Depends(get_current_gerente)):
+    establecimientos = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente.id == gerente.id)
+    return establecimientos
+
+
+@router.post("/{id}")
+async def obtener_establecimiento(establecimiento_modelo: Establecimiento,
+                                  gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento = EstablecimientoDB(**establecimiento_modelo.dict(), gerente=gerente)
+    await db.motor.save(establecimiento)
+    return establecimiento
+
+
+@router.delete("/{establecimiento_id}/baja")
 async def borrar_establecimiento(establecimiento_id: str, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
     valida(establecimiento=establecimiento, gerente_id=gerente.id)

@@ -5,12 +5,14 @@ from datetime import datetime
 namedWindow("webcam")
 vc = VideoCapture(0)
 frame_period = 100
+"""
 url = 'http://127.0.0.1:8000/images/'
-"""url = 'https://syskaoh.herokuapp.com/images'"""
+"""
+url = 'https://syskaoh.herokuapp.com/images'
 
 while True:
     for i in range(frame_period):
-        next_vc, frame = vc.read()
+        frame = vc.read()[1]
     img_name = str(datetime.now().time()) + '.jpg'
     imshow("Device0", frame)
     img = imencode(".jpg", frame)[1]
@@ -18,6 +20,3 @@ while True:
     r = requests.post(url, files=file)
     if waitKey(50) >= 0:
         break
-
-
-

@@ -1,3 +1,4 @@
+from typing import List
 from bson import ObjectId
 from fastapi import Depends, HTTPException
 from fastapi.routing import APIRouter
@@ -21,7 +22,7 @@ async def crear_establecimiento(establecimiento_modelo: Establecimiento,
     return establecimiento
 
 
-@router.get("/{establecimiento_id}")
+@router.get("/get/{establecimiento_id}")
 async def obtener_establecimiento(establecimiento_id: str,
                                 gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
@@ -29,9 +30,9 @@ async def obtener_establecimiento(establecimiento_id: str,
     return establecimiento
 
 
-@router.get("/todos")
+@router.get("/todos",response_model=List[Establecimiento])
 async def obtener_establecimientos(gerente: Gerente = Depends(get_current_gerente)):
-    establecimientos = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente.id == gerente.id)
+    establecimientos = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente == gerente.id)
     return establecimientos
 
 

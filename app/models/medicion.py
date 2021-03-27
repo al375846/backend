@@ -4,6 +4,6 @@ from odmantic import EmbeddedModel
 from app.enums.medicion import TipoMedicion
 
 class Medicion(EmbeddedModel):
-    identificador: TipoMedicion
+    identificador: str
     fecha: datetime = datetime.now()
     contenido: str

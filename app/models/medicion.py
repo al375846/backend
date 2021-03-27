@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from odmantic import Model
+from odmantic import EmbeddedModel
 
 
-class Medicion(Model):
+class Medicion(EmbeddedModel):
     identificador: str
-    fecha: datetime
+    fecha: datetime = datetime.now()
     contenido: str

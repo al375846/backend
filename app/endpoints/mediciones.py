@@ -15,14 +15,15 @@ router = APIRouter(prefix="/medicion",
                    tags=["Mediciones"])
 
 router.get("/aforo/{establecimiento_id}")
-async def obtener_medicion_aforo():
+async def obtener_medicion_aforo(gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+    if establecimiento is None:
+        raise HTTPException(detail="Ese establecimiento no existe", status_code=status.HTTP_404_NOT_FOUND)
     mediciones = establecimiento.mediciones
-    if (mediciones):
-        mediciones.sort(key=mediciones.fecha, reverse=True)
-        ultima=mediciones[0]
+    if mediciones is None:
+        ultima=mediciones[-1]
         return ultima
     else:
-        medicion = Medicion(identificador="", fecha=datetime.now(), contenido="No hay medicion de aforo")
+        medicion = Medicion(identificador="AFORO", fecha=datetime.now(), contenido="0")
         return medicion
 

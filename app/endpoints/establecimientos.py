@@ -30,14 +30,14 @@ async def obtener_establecimiento(establecimiento_id: str,
     return establecimiento
 
 
-@router.get("/todos",response_model=List[Establecimiento])
+@router.get("/todos",response_model=List[EstablecimientoDB])
 async def obtener_establecimientos(gerente: Gerente = Depends(get_current_gerente)):
     establecimientos = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente == gerente.id)
     return establecimientos
 
 
 @router.post("/{id}")
-async def obtener_establecimiento(establecimiento_modelo: Establecimiento,
+async def crear_establecimiento(establecimiento_modelo: Establecimiento,
                                   gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = EstablecimientoDB(**establecimiento_modelo.dict(), gerente=gerente)
     await db.motor.save(establecimiento)

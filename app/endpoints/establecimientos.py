@@ -1,5 +1,5 @@
 from typing import List
-from bson import ObjectId
+from odmantic import ObjectId
 from fastapi import Depends, HTTPException
 from fastapi.routing import APIRouter
 from starlette import status
@@ -28,6 +28,12 @@ async def obtener_establecimiento(establecimiento_id: str,
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
     return establecimiento
+
+@router.get("/get/{establecimiento_id}/dispositivos")
+async def obtener_establecimiento(establecimiento_id: str,
+                                gerente: Gerente = Depends(get_current_gerente)):
+    dispositivos = await db.motor.find(DispositivoDB, DispositivoDB.establecimiento == establecimiento_id)
+    return dispositivos
 
 
 @router.get("/todos",response_model=List[EstablecimientoDB])

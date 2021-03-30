@@ -2,13 +2,13 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends
 
 from app.db.db import db
-from app.models.dispositivo import DispositivoCreate, DispositivoDB
+from app.models.dispositivo import DispositivoCreate, DispositivoDB, DispositivoRet
 from app.utils.security import get_current_gerente
 
 router = APIRouter(prefix="/dispositivo", tags=["Dispositivos"])
 
 
-@router.post("")
+@router.post("",response_model=DispositivoRet)
 async def add_dispositivo(dispositivo: DispositivoCreate):
     disp = DispositivoDB(**dispositivo.dict())
     await db.motor.save(disp)

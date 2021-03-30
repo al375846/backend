@@ -10,8 +10,8 @@ from app.enums.tipodispositivo import TipoDispositivo
 class DispositivoDB(Model):
     modelo: str
     fechaRegistro: datetime = datetime.now()
-    activado: bool
-    conectado: bool
+    activado: bool = True
+    conectado: bool = True
     tipo: TipoDispositivo
     establecimiento: Optional[str] = None
 
@@ -21,3 +21,6 @@ class DispositivoCreate(BaseModel):
     activado: bool
     conectado: bool
     tipo: TipoDispositivo
+
+class DispositivoRet(BaseModel):
+    id: str

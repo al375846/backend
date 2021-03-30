@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from odmantic import Model
+from odmantic import Model,ObjectId
 from pydantic.main import BaseModel
 
 from app.enums.tipodispositivo import TipoDispositivo

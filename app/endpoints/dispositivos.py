@@ -1,4 +1,4 @@
-from bson import ObjectId
+from odmantic import ObjectId
 from fastapi import APIRouter, Depends
 
 from app.db.db import db
@@ -10,9 +10,9 @@ router = APIRouter(prefix="/dispositivo", tags=["Dispositivos"])
 
 @router.post("",response_model=DispositivoRet)
 async def add_dispositivo(dispositivo: DispositivoCreate):
-    disp = DispositivoDB(**dispositivo.dict())
+    disp = DispositivoDB(id = ObjectId(),**dispositivo.dict())
     await db.motor.save(disp)
-    return disp
+    return {"id":str(disp.id)}
 
 
 @router.get("/{dispositivo_id}")

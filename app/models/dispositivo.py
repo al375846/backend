@@ -18,8 +18,8 @@ class DispositivoDB(Model):
 
 class DispositivoCreate(BaseModel):
     modelo: str
-    activado: bool
-    conectado: bool
+    activado: bool = True
+    conectado: bool = True
     tipo: TipoDispositivo
 
 class DispositivoRet(BaseModel):

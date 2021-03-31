@@ -1,4 +1,4 @@
-from odmantic import Model, Reference
+from odmantic import Model, Reference, ObjectId
 from pydantic.main import BaseModel
 
 from app.models.gerente import Gerente
@@ -18,3 +18,8 @@ class EstablecimientoDB(Model):
     aforo: int
     gerente: Gerente = Reference()
     mediciones: Optional[List[Medicion]] = []
+
+class EstablecimientoRet(Model):
+    descriptor: str
+    direccion: str
+    aforo: int

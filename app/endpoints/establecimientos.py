@@ -6,7 +6,7 @@ from starlette import status
 
 from app.db.db import db
 from app.models.dispositivo import DispositivoDB
-from app.models.establecimiento import Establecimiento, EstablecimientoDB
+from app.models.establecimiento import Establecimiento, EstablecimientoDB, EstablecimientoRet
 from app.models.gerente import Gerente
 from app.utils.security import get_current_gerente
 
@@ -36,7 +36,7 @@ async def obtener_establecimiento(establecimiento_id: str,
     return dispositivos
 
 
-@router.get("/todos",response_model=List[EstablecimientoDB])
+@router.get("/todos",response_model=List[EstablecimientoRet])
 async def obtener_establecimientos(gerente: Gerente = Depends(get_current_gerente)):
     establecimientos = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente == gerente.id)
     return establecimientos

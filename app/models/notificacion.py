@@ -1,13 +1,13 @@
 from app.models.establecimiento import EstablecimientoDB
 from datetime import datetime
-
+from app.enums.medicion import TipoMedicion
 from odmantic import Model, Reference
-from pydantic import HttpUrl
 
 
 class Notificacion(Model):
-    fechaActivacion: datetime
+    fechaActivacion: datetime = datetime.now()
     contenido: str
+    tipo_medicion: TipoMedicion
     establecimiento: EstablecimientoDB = Reference()
     leido: bool = False
     

@@ -1,14 +1,14 @@
-from fastapi import APIRouter, File, UploadFile
-import shutil
-import os
+from app.models.notificacion import Notificacion
+from odmantic import ObjectId
+from app.db.db import db
+
+from fastapi import APIRouter
 
 router = APIRouter(prefix="/notificaciones",
                    tags=["notificaciones"])
 
 
-@router.post("/new")
-async def generate_notification(file: UploadFile = File(...)):
-    path = os.getcwd() + "/app/files/" + file.filename
-    with open(path, "wb") as filesave:
-        shutil.copyfileobj(file.file, filesave)
-    return {"filename": file.filename}
+@router.get("/notify")
+async def push(id:ObjectId):
+    notification = await db.motor.find_one(Notificacion,Notificacion.id == id)
+    print(f"Enviando push notification FAKE\n{notification}")

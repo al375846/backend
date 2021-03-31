@@ -11,4 +11,5 @@ router = APIRouter(prefix="/notificaciones",
 @router.get("/notify")
 async def push(id:ObjectId):
     notification = await db.motor.find_one(Notificacion,Notificacion.id == id)
-    print(f"Enviando push notification FAKE\n{notification}")
+    print(f"Enviando push notification FAKE")
+    print(f"Aforo {notification.contenido}")

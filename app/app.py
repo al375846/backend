@@ -8,6 +8,7 @@ from app.endpoints.gestion import router as router_gestion
 from app.endpoints.security import router as router_security
 from app.endpoints.images import router as router_images
 from app.endpoints.mediciones import router as router_mediciones
+from app.endpoints.notificaciones import router as router_notificaciones
 
 app = FastAPI()
 
@@ -20,6 +21,7 @@ app.include_router(router_establecimientos)
 app.include_router(router_gestion)
 app.include_router(router_images)
 app.include_router(router_mediciones)
+app.include_router(router_notificaciones)
 
 
 @app.get("/", include_in_schema=False)

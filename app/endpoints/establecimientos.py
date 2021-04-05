@@ -80,11 +80,11 @@ async def asignar_dispositivo(establecimiento_id: ObjectId, dispositivo_id: Obje
 
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento, gerente_id=gerente.id)
-    disp.establecimiento = establecimiento_id
+    disp.establecimiento = str(establecimiento_id)
     await db.motor.save(disp)
     return disp
 
-@router.put("/desasigna_dispositivo/{dispositivo_id}")
+@router.put("/desasigna_dispositivo/{dispositivo_id}",response_model=bool)
 async def desasigna_dispositivo(dispositivo_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
 
 

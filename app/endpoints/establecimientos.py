@@ -23,9 +23,9 @@ async def crear_establecimiento(establecimiento_modelo: Establecimiento,
 
 
 @router.get("/get/{establecimiento_id}")
-async def obtener_establecimiento(establecimiento_id: str,
+async def obtener_establecimiento(establecimiento_id: ObjectId,
                                 gerente: Gerente = Depends(get_current_gerente)):
-    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
     return establecimiento
 
@@ -51,16 +51,16 @@ async def crear_establecimiento(establecimiento_modelo: Establecimiento,
 
 
 @router.delete("/{establecimiento_id}/baja")
-async def borrar_establecimiento(establecimiento_id: str, gerente: Gerente = Depends(get_current_gerente)):
-    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+async def borrar_establecimiento(establecimiento_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id ==establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
     await db.motor.delete(establecimiento)
     return establecimiento
 
 
 @router.put("/{establecimiento_id}/cambio/{aforo}")
-async def cambiar_establecimiento(establecimiento_id: str, aforo: int, gerente: Gerente = Depends(get_current_gerente)):
-    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+async def cambiar_establecimiento(establecimiento_id: ObjectId, aforo: int, gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
     establecimiento.aforo = aforo
     await db.motor.save(establecimiento)
@@ -68,15 +68,37 @@ async def cambiar_establecimiento(establecimiento_id: str, aforo: int, gerente: 
 
 
 @router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}")
-async def asignar_dispositivo(establecimiento_id: str, dispositivo_id: str,
+async def asignar_dispositivo(establecimiento_id: ObjectId, dispositivo_id: ObjectId,
                               gerente: Gerente = Depends(get_current_gerente)):
-    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(establecimiento_id))
+
+                              
+    disp = await db.motor.find_one(DispositivoDB, DispositivoDB.id == dispositivo_id)
+    if disp is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Dispositivo no existe")
+    if disp.establecimiento is not None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Dispositivo en uso")
+
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento, gerente_id=gerente.id)
-    disp = await db.motor.find_one(DispositivoDB, DispositivoDB.id == ObjectId(dispositivo_id))
     disp.establecimiento = establecimiento_id
     await db.motor.save(disp)
     return disp
 
+@router.put("/desasigna_dispositivo/{dispositivo_id}")
+async def desasigna_dispositivo(dispositivo_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
+
+
+    disp = await db.motor.find_one(DispositivoDB, DispositivoDB.id == dispositivo_id)
+    if disp is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Dispositivo no existe")
+    if disp is None or disp.establecimiento is None:
+        return False
+
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(disp.establecimiento))
+    valida(establecimiento, gerente_id=gerente.id)
+    disp.establecimiento = None
+    await db.motor.save(disp)
+    return True
 
 def valida(establecimiento, gerente_id):
     if establecimiento is None:

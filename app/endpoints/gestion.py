@@ -3,13 +3,14 @@ from typing import List, Optional
 from fastapi import HTTPException, APIRouter, Depends, Body
 from pydantic import EmailStr
 from starlette import status
+from bson import ObjectId
 
 from app.db.db import db
 from app.models.administrador import Administrador
 from app.models.gerente import Gerente
 from app.models.registro import Registro, ExistsEmail, ExistsEmailRequest
 from app.models.user_data import UserData
-from app.utils.security import encripta_pwd, get_current_admin
+from app.utils.security import encripta_pwd, get_current_admin, get_current_gerente
 from app.utils.validation import existe_email
 
 router = APIRouter(prefix="/gestion",
@@ -24,6 +25,16 @@ async def registro_gerente(gerente: Registro, _=Depends(get_current_admin)):
     gdb = Gerente(**gerente.dict())
     await db.motor.save(gdb)
     return gdb
+
+@router.put("/gerente/{id}", response_model=Gerente)
+async def edita_gerente(id: str, gerente: Registro, _=Depends(get_current_gerente)):
+    gdb = await db.motor.find_one(Gerente, Gerente.id == ObjectId(id))
+    gdb.nombre = gerente.nombre
+    gdb.apellidos = gerente.apellidos
+    gdb.telefono = gerente.telefono
+    await db.motor.save(gdb)
+    return gdb
+
 
 
 @router.post("/registra_administrador", response_model=Administrador)

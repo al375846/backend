@@ -3,13 +3,14 @@ from typing import List, Optional
 from fastapi import HTTPException, APIRouter, Depends, Body
 from pydantic import EmailStr
 from starlette import status
-from bson import ObjectId
+
+
 
 from app.db.db import db
 from app.models.administrador import Administrador
-from app.models.gerente import Gerente
+from app.models.gerente import Gerente, ResGerente
 from app.models.registro import Registro, ExistsEmail, ExistsEmailRequest
-from app.models.user_data import UserData
+from app.models.user_data import UpdateUser, UserData
 from app.utils.security import encripta_pwd, get_current_admin, get_current_gerente
 from app.utils.validation import existe_email
 
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/gestion",
                    tags=["Gestión"])
 
 
-@router.post("/registra_gerente", response_model=Gerente)
+@router.post("/registra_gerente", response_model=ResGerente)
 async def registro_gerente(gerente: Registro, _=Depends(get_current_admin)):
     if await existe_email(gerente.email):
         raise HTTPException(detail="email repetido", status_code=status.HTTP_409_CONFLICT)
@@ -26,14 +27,16 @@ async def registro_gerente(gerente: Registro, _=Depends(get_current_admin)):
     await db.motor.save(gdb)
     return gdb
 
-@router.put("/gerente/{id}", response_model=Gerente)
-async def edita_gerente(id: str, gerente: Registro, _=Depends(get_current_gerente)):
-    gdb = await db.motor.find_one(Gerente, Gerente.id == ObjectId(id))
-    gdb.nombre = gerente.nombre
-    gdb.apellidos = gerente.apellidos
-    gdb.telefono = gerente.telefono
-    await db.motor.save(gdb)
-    return gdb
+@router.put("/edita_gerente", response_model=ResGerente)
+async def edita_gerente( gerente: UpdateUser, current:Gerente = Depends(get_current_gerente)):
+    if gerente.nombre is not None:
+        current.nombre = gerente.nombre
+    if gerente.apellidos is not None:
+        current.apellidos = gerente.apellidos
+    if gerente.telefono is not None:
+        current.telefono = gerente.telefono
+    await db.motor.save(current)
+    return current
 
 
 

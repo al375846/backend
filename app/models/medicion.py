@@ -10,8 +10,28 @@ class Medicion(EmbeddedModel):
     identificador_disp: str
     fecha: datetime = datetime.now()
     contenido: str
+    
+    def __add__(self,other):
+        if type(other) == Medicion:
+            return float(self.contenido) + float(other.contenido)
+        else:
+            return float(self.contenido) + other
+    
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)
 
 
+class MediaAforo(BaseModel):
+    hora: int
+    media:float
+
+class MedicionEstablecimiento(BaseModel):
+    descriptor: str
+    aforo_value: int
+    medias_aforo: List[MediaAforo]
 
 class InformeMedicionRet(BaseModel):
     contenido: Optional[List[Medicion]] = None

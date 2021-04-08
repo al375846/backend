@@ -39,10 +39,12 @@ async def obtener_mediciones(*, gerente: Gerente = Depends(get_current_gerente))
     res = []
     for establecimiento in establecimientos:
         if len(establecimiento.mediciones)> 0:
+
             mediciones_aforo = filtra_dia(establecimiento.mediciones,TipoMedicion.aforo)
             mediciones_aforo = media_mediciones_aforo(mediciones_aforo)
+            ultima_media = mediciones_aforo[-1].media if len(mediciones_aforo)>0 else 0
             est = MedicionEstablecimiento(descriptor = establecimiento.descriptor,
-                                        aforo_value = mediciones_aforo[-1].media,
+                                        aforo_value = ultima_media,
                                         medias_aforo = mediciones_aforo)
             res.append(est)
     return res

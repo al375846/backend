@@ -1,18 +1,18 @@
-from app.enums.medicion import TipoMedicion
-from collections import defaultdict
-from odmantic import ObjectId, query
-from fastapi import Depends, HTTPException
-from fastapi.routing import APIRouter
-from starlette import status
 import math
+from datetime import datetime
+from typing import List
 
 from app.db.db import db
-from app.models.medicion import MediaAforo, Medicion, InformeMedicionRet, MedicionEstablecimiento, MedicionRet
+from app.enums.medicion import TipoMedicion
 from app.models.establecimiento import EstablecimientoDB
 from app.models.gerente import Gerente
+from app.models.medicion import (MediaAforo, Medicion, MedicionEstablecimiento,
+                                 MedicionRet)
 from app.utils.security import get_current_gerente
-from typing import List
-from datetime import datetime
+from fastapi import Depends, HTTPException
+from fastapi.routing import APIRouter
+from odmantic import ObjectId
+from starlette import status
 
 router = APIRouter(prefix="/medicion",
                    tags=["Mediciones"])

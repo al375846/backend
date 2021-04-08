@@ -18,7 +18,7 @@ router = APIRouter(prefix="/medicion",
                    tags=["Mediciones"])
 
 
-@router.get("/aforo/{establecimiento_id}",response_model=MedicionRet)
+@router.get("/aforo/{establecimiento_id}", response_model=MedicionRet)
 async def obtener_medicion_aforo(establecimiento_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
 
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
@@ -28,46 +28,54 @@ async def obtener_medicion_aforo(establecimiento_id: ObjectId, gerente: Gerente 
     if establecimiento.mediciones is None:
         return MedicionRet()
     else:
-        ultima = filtra_fecha(establecimiento.mediciones,TipoMedicion.aforo)[-1].contenido
-        return MedicionRet(contenido = ultima)
+        ultima = filtra_fecha(establecimiento.mediciones,
+                              TipoMedicion.aforo)[-1].contenido
+        return MedicionRet(contenido=ultima)
 
 
-@router.get("/informe/diario",response_model=List[MedicionEstablecimiento])
+@router.get("/informe/diario", response_model=List[MedicionEstablecimiento])
 async def obtener_mediciones(*, gerente: Gerente = Depends(get_current_gerente)):
-    establecimientos = await db.motor.find(EstablecimientoDB,EstablecimientoDB.gerente == gerente.id)
-    
+    establecimientos = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente == gerente.id)
+
     res = []
     for establecimiento in establecimientos:
-        if len(establecimiento.mediciones)> 0:
+        if len(establecimiento.mediciones) > 0:
 
-            mediciones_aforo = filtra_dia(establecimiento.mediciones,TipoMedicion.aforo)
+            mediciones_aforo = filtra_dia(
+                establecimiento.mediciones, TipoMedicion.aforo)
             mediciones_aforo = media_mediciones_aforo(mediciones_aforo)
-            ultima_media = mediciones_aforo[-1].media if len(mediciones_aforo)>0 else 0
-            est = MedicionEstablecimiento(descriptor = establecimiento.descriptor,
-                                        aforo_value = ultima_media,
-                                        medias_aforo = mediciones_aforo)
+            ultima_media = mediciones_aforo[-1].media if len(
+                mediciones_aforo) > 0 else 0
+            est = MedicionEstablecimiento(descriptor=establecimiento.descriptor,
+                                          aforo_value=ultima_media,
+                                          medias_aforo=mediciones_aforo)
             res.append(est)
+        else:
+            res.append(MedicionEstablecimiento(descriptor=establecimiento.descriptor,
+                                               aforo_value=0,
+                                               medias_aforo=[]))
     return res
 
-def media_mediciones_aforo(mediciones:list[Medicion]):
+
+def media_mediciones_aforo(mediciones: list[Medicion]):
     medias = []
     for h in range(24):
-        l = list(filter(lambda x: x.fecha.hour == h , mediciones))
+        l = list(filter(lambda x: x.fecha.hour == h, mediciones))
         if len(l) > 0:
-            valores = list(map(lambda x: float(x.contenido),l))
+            valores = list(map(lambda x: float(x.contenido), l))
             avg = sum(valores)/len(valores)
-            medias.append(MediaAforo(hora = h,media= math.ceil(avg)))
+            medias.append(MediaAforo(hora=h, media=math.ceil(avg)))
     return medias
 
 
-def filtra_dia(mediciones: list[Medicion], tipo: TipoMedicion,  fecha: datetime = datetime.now())->list[Medicion]:
-    return list(filter(lambda medicion:medicion.tipo_medicion == tipo and medicion.fecha.date() == fecha.date(),mediciones))
+def filtra_dia(mediciones: list[Medicion], tipo: TipoMedicion,  fecha: datetime = datetime.now()) -> list[Medicion]:
+    return list(filter(lambda medicion: medicion.tipo_medicion == tipo and medicion.fecha.date() == fecha.date(), mediciones))
 
-def filtra_fecha(mediciones: Medicion, tipo: TipoMedicion, fecha_ini: datetime = None, fecha_fin: datetime = None)->list[Medicion]:
-    
-    return list(filter(lambda medicion:medicion.tipo_medicion == tipo and (fecha_fin is None or medicion.fecha <= fecha_fin)
-                and (fecha_ini is None or medicion.fecha >= fecha_ini),mediciones))
 
+def filtra_fecha(mediciones: Medicion, tipo: TipoMedicion, fecha_ini: datetime = None, fecha_fin: datetime = None) -> list[Medicion]:
+
+    return list(filter(lambda medicion: medicion.tipo_medicion == tipo and (fecha_fin is None or medicion.fecha <= fecha_fin)
+                and (fecha_ini is None or medicion.fecha >= fecha_ini), mediciones))
 
 
 """ while i < len(mediciones):

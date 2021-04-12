@@ -30,8 +30,8 @@ async def activate_dispositivo(dispositivo_id: str, activado: bool, _=Depends(ge
 
 
 @router.put("/{dispositivo_id}/conectar")
-async def connect_dispositivo(dispositivo_id: str, conectado: bool, _=Depends(get_current_gerente)):
+async def connect_dispositivo(dispositivo_id: str, _=Depends(get_current_gerente)):
     disp = await db.motor.find_one(DispositivoDB, DispositivoDB.id == ObjectId(dispositivo_id))
-    disp.conectado = conectado
+    disp.conectado = not disp.conectado
     await db.motor.save(disp)
     return disp

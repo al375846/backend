@@ -17,7 +17,7 @@ class EstablecimientoDB(Model):
     direccion: str
     aforo: int
     gerente: Gerente = Reference()
-    mediciones: Optional[List[Medicion]] = []
+    mediciones: List[Medicion] = []
 
 class EstablecimientoRet(Model):
     descriptor: str

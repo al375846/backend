@@ -14,3 +14,9 @@ class Gerente(Model):
     password: str
     username: str
     suscripciones: Optional[List[Suscripcion]]
+
+class ResGerente(Model):
+    nombre: str
+    apellidos: str
+    email: EmailStr
+    telefono: str

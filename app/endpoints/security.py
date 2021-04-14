@@ -52,7 +52,7 @@ async def login(login_data: LoginData):
     elif gerente:
         lrt.access_token = generate_token(gerente)
         gerente.phone_tokens.append(login_data.phone_token)
-        db.motor.save(gerente)
+        await db.motor.save(gerente)
 
     return lrt
 
@@ -61,7 +61,7 @@ async def login(login_data: LoginData):
 async def logout(phone_token:str, gerente:Gerente = Depends(get_current_gerente)):
     if phone_token in gerente.phone_tokens:
         gerente.phone_tokens.remove(phone_token)
-        db.motor.save(gerente)
+        await db.motor.save(gerente)
         
 
 

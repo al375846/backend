@@ -8,6 +8,7 @@ from app.models.registro import LoginReturn
 from app.models.user_data import LoginData
 from app.utils.security import authenticate_admin, generate_token, authenticate_gerente, get_current_gerente, \
     get_current_admin
+from app.db.db import db
 
 router = APIRouter(prefix="/security",
                    tags=["Security"])
@@ -51,6 +52,7 @@ async def login(login_data: LoginData):
     elif gerente:
         lrt.access_token = generate_token(gerente)
         gerente.phone_tokens.append(login_data.phone_token)
+        db.motor.save(gerente)
 
     return lrt
 
@@ -59,6 +61,7 @@ async def login(login_data: LoginData):
 async def logout(phone_token:str, gerente:Gerente = Depends(get_current_gerente)):
     if phone_token in gerente.phone_tokens:
         gerente.phone_tokens.remove(phone_token)
+        db.motor.save(gerente)
         
 
 

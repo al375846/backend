@@ -18,3 +18,4 @@ class UpdateUser(BaseModel):
 class LoginData(BaseModel):
     email: EmailStr
     password: str
+    phone_token: str

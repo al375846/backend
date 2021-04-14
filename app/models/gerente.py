@@ -13,6 +13,7 @@ class Gerente(Model):
     telefono: str
     password: str
     username: str
+    phone_tokens: List[str] = []
     suscripciones: Optional[List[Suscripcion]]
 
 class ResGerente(Model):

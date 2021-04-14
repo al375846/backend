@@ -50,5 +50,16 @@ async def login(login_data: LoginData):
         lrt.user_type = UserType.administrador
     elif gerente:
         lrt.access_token = generate_token(gerente)
+        gerente.phone_tokens.append(login_data.phone_token)
 
     return lrt
+
+
+@router.post("/login", response_model=LoginReturn)
+async def logout(phone_token:str, gerente:Gerente = Depends(get_current_gerente)):
+    if phone_token in gerente.phone_tokens:
+        gerente.phone_tokens.remove(phone_token)
+        
+
+
+

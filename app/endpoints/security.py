@@ -1,3 +1,4 @@
+from app.models.generic_respones import BasicReturn
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -58,11 +59,12 @@ async def login(login_data: LoginData):
     return lrt
 
 
-@router.post("/logout", response_model=LoginReturn)
+@router.post("/logout", response_model=bool)
 async def logout(phone_token:str, gerente:Gerente = Depends(get_current_gerente)):
     if phone_token in gerente.phone_tokens:
         gerente.phone_tokens.remove(phone_token)
         await db.motor.save(gerente)
+    return BasicReturn()
         
 
 

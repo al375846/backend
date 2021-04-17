@@ -1,3 +1,4 @@
+from app.models.configuracion_establecimiento import ConfiguracionEstablecimiento
 from odmantic import Model, Reference, ObjectId
 from pydantic.main import BaseModel
 
@@ -9,17 +10,17 @@ from typing import List, Optional
 class Establecimiento(BaseModel):
     descriptor: str
     direccion: str
-    aforo: int
+    configuracion: ConfiguracionEstablecimiento
 
 
 class EstablecimientoDB(Model):
     descriptor: str
     direccion: str
-    aforo: int
+    configuracion: ConfiguracionEstablecimiento
     gerente: Gerente = Reference()
     mediciones: List[Medicion] = []
 
 class EstablecimientoRet(Model):
     descriptor: str
     direccion: str
-    aforo: int
+    configuracion: ConfiguracionEstablecimiento

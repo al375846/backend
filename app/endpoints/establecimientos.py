@@ -15,7 +15,7 @@ router = APIRouter(prefix="/establecimiento",
                    tags=["Gestion establecimiento"])
 
 
-@router.post("/alta")
+@router.post("/alta",response_model=EstablecimientoRet)
 async def crear_establecimiento(establecimiento_modelo: Establecimiento,
                                 gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = EstablecimientoDB(

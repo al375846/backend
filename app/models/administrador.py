@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from odmantic import Model
 from pydantic.networks import EmailStr
@@ -11,4 +12,5 @@ class Administrador(Model):
     telefono: str
     username: str
     password: str
+    phone_tokens: List[str] = []
     fecha_contratacion: datetime = datetime.now()

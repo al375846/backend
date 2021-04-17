@@ -51,7 +51,8 @@ async def login(login_data: LoginData):
         lrt.user_type = UserType.administrador
     elif gerente:
         lrt.access_token = generate_token(gerente)
-        gerente.phone_tokens.append(login_data.phone_token)
+        if login_data.phone_token not in gerente.phone_tokens:
+            gerente.phone_tokens.append(login_data.phone_token)
         await db.motor.save(gerente)
 
     return lrt

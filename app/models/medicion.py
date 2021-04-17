@@ -24,14 +24,17 @@ class Medicion(EmbeddedModel):
             return self.__add__(other)
 
 
-class MediaAforo(BaseModel):
+
+class Media(BaseModel):
     hora: int
     media:float
 
 class MedicionEstablecimiento(BaseModel):
     descriptor: str
-    aforo_value: int
-    medias_aforo: List[MediaAforo]
+    aforo_value: int = 0
+    medias_aforo: List[Media] = []
+    aire_value: int = 0
+    medias_aire: List[Media] = []
 
 class InformeMedicionRet(BaseModel):
     contenido: Optional[List[Medicion]] = None

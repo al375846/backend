@@ -6,7 +6,7 @@ from app.db.db import db
 from app.enums.medicion import TipoMedicion
 from app.models.establecimiento import EstablecimientoDB
 from app.models.gerente import Gerente
-from app.models.medicion import (MediaAforo, Medicion, MedicionEstablecimiento,
+from app.models.medicion import (Media, Medicion, MedicionEstablecimiento,
                                  MedicionRet)
 from app.utils.security import get_current_gerente
 from fastapi import Depends, HTTPException
@@ -18,18 +18,17 @@ router = APIRouter(prefix="/medicion",
                    tags=["Mediciones"])
 
 
-@router.get("/aforo/{establecimiento_id}", response_model=MedicionRet)
-async def obtener_medicion_aforo(establecimiento_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
-
-    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
-    if establecimiento is None:
-        raise HTTPException(detail="Ese establecimiento no existe",
-                            status_code=status.HTTP_404_NOT_FOUND)
+@router.get("/medicion/{tipo}/{establecimiento_id}", response_model=MedicionRet)
+async def obtener_ultima_medicion(establecimiento_id: ObjectId, tipo: TipoMedicion, gerente: Gerente = Depends(get_current_gerente)):
+    establecimiento = await obten_establecimiento(establecimiento_id)
+    if establecimiento.gerente.id != gerente.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Establecimiento no en propiedad")
     if establecimiento.mediciones is None:
         return MedicionRet()
     else:
-        ultima = filtra_fecha(establecimiento.mediciones,
-                              TipoMedicion.aforo)[-1].contenido
+        mediciones = filtra_fecha(establecimiento.mediciones, tipo)
+        ultima = mediciones[-1].contenido if len(mediciones) > 0 else 0
         return MedicionRet(contenido=ultima)
 
 
@@ -41,30 +40,42 @@ async def obtener_mediciones(*, gerente: Gerente = Depends(get_current_gerente))
     for establecimiento in establecimientos:
         if len(establecimiento.mediciones) > 0:
 
-            mediciones_aforo = filtra_dia(
+            mediciones_aforo = obten_mediciones(
                 establecimiento.mediciones, TipoMedicion.aforo)
-            mediciones_aforo = media_mediciones_aforo(mediciones_aforo)
-            ultima_media = mediciones_aforo[-1].media if len(
+
+            ultima_media_aforo = mediciones_aforo[-1].media if len(
                 mediciones_aforo) > 0 else 0
+
+            mediciones_aire = obten_mediciones(
+                establecimiento.mediciones, TipoMedicion.aire)
+
+            ultima_media_aire = mediciones_aire[-1].media if len(
+                mediciones_aire) > 0 else 0
+
             est = MedicionEstablecimiento(descriptor=establecimiento.descriptor,
-                                          aforo_value=ultima_media,
-                                          medias_aforo=mediciones_aforo)
+                                          aforo_value=ultima_media_aforo,
+                                          medias_aforo=mediciones_aforo,
+                                          aire_value=ultima_media_aire,
+                                          medias_aire=mediciones_aire)
             res.append(est)
         else:
-            res.append(MedicionEstablecimiento(descriptor=establecimiento.descriptor,
-                                               aforo_value=0,
-                                               medias_aforo=[]))
+            res.append(MedicionEstablecimiento(
+                descriptor=establecimiento.descriptor))
     return res
 
 
-def media_mediciones_aforo(mediciones: list[Medicion]):
+def obten_mediciones(mediciones: List[Medicion], tipo: TipoMedicion):
+    return media_mediciones(filtra_dia(mediciones, tipo))
+
+
+def media_mediciones(mediciones: list[Medicion]):
     medias = []
     for h in range(24):
         l = list(filter(lambda x: x.fecha.hour == h, mediciones))
         if len(l) > 0:
             valores = list(map(lambda x: float(x.contenido), l))
             avg = sum(valores)/len(valores)
-            medias.append(MediaAforo(hora=h, media=math.ceil(avg)))
+            medias.append(Media(hora=h, media=math.ceil(avg)))
     return medias
 
 
@@ -78,20 +89,9 @@ def filtra_fecha(mediciones: Medicion, tipo: TipoMedicion, fecha_ini: datetime =
                 and (fecha_ini is None or medicion.fecha >= fecha_ini), mediciones))
 
 
-""" while i < len(mediciones):
-        nmed = defaultdict(int)
-        vals  = defaultdict(float)
-        f = mediciones[i].fecha
-        h = f.hour
-
-        while i < len(mediciones) and h == mediciones[i].fecha.hour:
-            medinion = mediciones[i]
-            vals[medinion.tipo_medicion.value] += float(medinion.contenido)
-            nmed[medinion.tipo_medicion.value] += 1
-            i+=1
-        for k,n in nmed.items():
-            val = vals[k]
-            if tipo == TipoMedicion.aforo:
-                res.append(MediaAforo())
-            elif tipo == TipoMedicion.aire:
-                ... """
+async def obten_establecimiento(establecimiento_id: ObjectId):
+    establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
+    if establecimiento is None:
+        raise HTTPException(detail="Ese establecimiento no existe",
+                            status_code=status.HTTP_404_NOT_FOUND)
+    return establecimiento

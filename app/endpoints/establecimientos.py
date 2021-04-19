@@ -33,7 +33,7 @@ async def obtener_establecimiento(establecimiento_id: ObjectId,
     return establecimiento
 
 
-@router.get("/get/{establecimiento_id}/dispositivos",List[DispositivoDB])
+@router.get("/get/{establecimiento_id}/dispositivos",response_model=List[DispositivoDB])
 async def obtener_establecimiento(establecimiento_id: str,
                                   _=Depends(get_current_gerente)):
     dispositivos = await db.motor.find(DispositivoDB, DispositivoDB.establecimiento == establecimiento_id)

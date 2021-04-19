@@ -20,6 +20,10 @@ async def crear_establecimiento(establecimiento_modelo: Establecimiento,
                                 gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = EstablecimientoDB(
         **establecimiento_modelo.dict(), gerente=gerente)
+    establecimientos = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente == gerente.id)
+    for otroEstablecimiento in establecimientos:
+        if otroEstablecimiento.descriptor == establecimiento.descriptor:
+            raise HTTPException(detail="descriptor repetido", status_code=status.HTTP_409_CONFLICT)
     await db.motor.save(establecimiento)
     return establecimiento
 
@@ -33,7 +37,7 @@ async def obtener_establecimiento(establecimiento_id: ObjectId,
 
 
 @router.get("/get/{establecimiento_id}/dispositivos")
-async def obtener_establecimiento(establecimiento_id: str,
+async def obtener_dispositivos_establecimiento(establecimiento_id: str,
                                   _=Depends(get_current_gerente)):
     dispositivos = await db.motor.find(DispositivoDB, DispositivoDB.establecimiento == establecimiento_id)
     return dispositivos

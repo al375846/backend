@@ -4,6 +4,7 @@ from odmantic import ObjectId
 from fastapi import Depends, HTTPException
 from fastapi.routing import APIRouter
 from starlette import status
+from app.models.generic_respones import BasicReturn
 
 from app.db.db import db
 from app.models.dispositivo import DispositivoDB
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/establecimiento",
                    tags=["Gestion establecimiento"])
 
 
-@router.post("/alta",response_model=EstablecimientoRet)
+@router.post("/alta", response_model=EstablecimientoRet)
 async def crear_establecimiento(establecimiento_modelo: Establecimiento,
                                 gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = EstablecimientoDB(
@@ -23,7 +24,8 @@ async def crear_establecimiento(establecimiento_modelo: Establecimiento,
     establecimientos = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente == gerente.id)
     for otroEstablecimiento in establecimientos:
         if otroEstablecimiento.descriptor == establecimiento.descriptor:
-            raise HTTPException(detail="descriptor repetido", status_code=status.HTTP_409_CONFLICT)
+            raise HTTPException(detail="descriptor repetido",
+                                status_code=status.HTTP_409_CONFLICT)
     await db.motor.save(establecimiento)
     return establecimiento
 
@@ -36,9 +38,9 @@ async def obtener_establecimiento(establecimiento_id: ObjectId,
     return establecimiento
 
 
-@router.get("/get/{establecimiento_id}/dispositivos",response_model=List[DispositivoDB])
+@router.get("/get/{establecimiento_id}/dispositivos", response_model=List[DispositivoDB])
 async def obtener_dispositivos_establecimiento(establecimiento_id: str,
-                                  _=Depends(get_current_gerente)):
+                                               _=Depends(get_current_gerente)):
     dispositivos = await db.motor.find(DispositivoDB, DispositivoDB.establecimiento == establecimiento_id)
     return dispositivos
 
@@ -49,7 +51,7 @@ async def obtener_establecimientos(gerente: Gerente = Depends(get_current_gerent
     return establecimientos
 
 
-@router.delete("/{establecimiento_id}/baja",response_model=EstablecimientoDB)
+@router.delete("/{establecimiento_id}/baja", response_model=EstablecimientoDB)
 async def borrar_establecimiento(establecimiento_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
@@ -57,7 +59,7 @@ async def borrar_establecimiento(establecimiento_id: ObjectId, gerente: Gerente 
     return establecimiento
 
 
-@router.put("/{establecimiento_id}/cambio",response_model=EstablecimientoDB)
+@router.put("/{establecimiento_id}/cambio", response_model=EstablecimientoDB)
 async def cambiar_establecimiento(establecimiento_id: ObjectId, config: ConfiguracionEstablecimiento, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
@@ -66,7 +68,7 @@ async def cambiar_establecimiento(establecimiento_id: ObjectId, config: Configur
     return establecimiento
 
 
-@router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}",response_model=DispositivoDB)
+@router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}", response_model=DispositivoDB)
 async def asignar_dispositivo(establecimiento_id: ObjectId, dispositivo_id: ObjectId,
                               gerente: Gerente = Depends(get_current_gerente)):
 

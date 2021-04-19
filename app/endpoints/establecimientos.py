@@ -33,7 +33,7 @@ async def obtener_establecimiento(establecimiento_id: ObjectId,
     return establecimiento
 
 
-@router.get("/get/{establecimiento_id}/dispositivos")
+@router.get("/get/{establecimiento_id}/dispositivos",List[DispositivoDB])
 async def obtener_establecimiento(establecimiento_id: str,
                                   _=Depends(get_current_gerente)):
     dispositivos = await db.motor.find(DispositivoDB, DispositivoDB.establecimiento == establecimiento_id)
@@ -46,7 +46,7 @@ async def obtener_establecimientos(gerente: Gerente = Depends(get_current_gerent
     return establecimientos
 
 
-@router.delete("/{establecimiento_id}/baja")
+@router.delete("/{establecimiento_id}/baja",response_model=EstablecimientoDB)
 async def borrar_establecimiento(establecimiento_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
@@ -54,7 +54,7 @@ async def borrar_establecimiento(establecimiento_id: ObjectId, gerente: Gerente 
     return establecimiento
 
 
-@router.put("/{establecimiento_id}/cambio")
+@router.put("/{establecimiento_id}/cambio",response_model=EstablecimientoDB)
 async def cambiar_establecimiento(establecimiento_id: ObjectId, config: ConfiguracionEstablecimiento, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
@@ -63,7 +63,7 @@ async def cambiar_establecimiento(establecimiento_id: ObjectId, config: Configur
     return establecimiento
 
 
-@router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}")
+@router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}",response_model=DispositivoDB)
 async def asignar_dispositivo(establecimiento_id: ObjectId, dispositivo_id: ObjectId,
                               gerente: Gerente = Depends(get_current_gerente)):
 

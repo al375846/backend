@@ -36,7 +36,7 @@ async def obtener_establecimiento(establecimiento_id: ObjectId,
     return establecimiento
 
 
-@router.get("/get/{establecimiento_id}/dispositivos")
+@router.get("/get/{establecimiento_id}/dispositivos",response_model=List[DispositivoDB])
 async def obtener_dispositivos_establecimiento(establecimiento_id: str,
                                   _=Depends(get_current_gerente)):
     dispositivos = await db.motor.find(DispositivoDB, DispositivoDB.establecimiento == establecimiento_id)
@@ -49,7 +49,7 @@ async def obtener_establecimientos(gerente: Gerente = Depends(get_current_gerent
     return establecimientos
 
 
-@router.delete("/{establecimiento_id}/baja")
+@router.delete("/{establecimiento_id}/baja",response_model=EstablecimientoDB)
 async def borrar_establecimiento(establecimiento_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
@@ -57,7 +57,7 @@ async def borrar_establecimiento(establecimiento_id: ObjectId, gerente: Gerente 
     return establecimiento
 
 
-@router.put("/{establecimiento_id}/cambio")
+@router.put("/{establecimiento_id}/cambio",response_model=EstablecimientoDB)
 async def cambiar_establecimiento(establecimiento_id: ObjectId, config: ConfiguracionEstablecimiento, gerente: Gerente = Depends(get_current_gerente)):
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
@@ -66,7 +66,7 @@ async def cambiar_establecimiento(establecimiento_id: ObjectId, config: Configur
     return establecimiento
 
 
-@router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}")
+@router.put("/{establecimiento_id}/dispositivo/{dispositivo_id}",response_model=DispositivoDB)
 async def asignar_dispositivo(establecimiento_id: ObjectId, dispositivo_id: ObjectId,
                               gerente: Gerente = Depends(get_current_gerente)):
 
@@ -85,7 +85,7 @@ async def asignar_dispositivo(establecimiento_id: ObjectId, dispositivo_id: Obje
     return disp
 
 
-@router.put("/desasigna_dispositivo/{dispositivo_id}", response_model=bool)
+@router.put("/desasigna_dispositivo/{dispositivo_id}", response_model=BasicReturn)
 async def desasigna_dispositivo(dispositivo_id: ObjectId, gerente: Gerente = Depends(get_current_gerente)):
 
     disp = await db.motor.find_one(DispositivoDB, DispositivoDB.id == dispositivo_id)
@@ -93,13 +93,13 @@ async def desasigna_dispositivo(dispositivo_id: ObjectId, gerente: Gerente = Dep
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no existe")
     if disp is None or disp.establecimiento is None:
-        return False
+        return BasicReturn(done=False)
 
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == ObjectId(disp.establecimiento))
     valida(establecimiento, gerente_id=gerente.id)
     disp.establecimiento = None
     await db.motor.save(disp)
-    return True
+    return BasicReturn()
 
 
 def valida(establecimiento, gerente_id):

@@ -1,5 +1,5 @@
 from app.enums.tipo_notificacion import TipoNotificacion
-from app.models.notificacion import NotificacionAdmin
+from app.models.notificacion import Notificacion, NotificacionAdmin
 from app.config import FIREBASE_TOKEN
 from pyfcm.fcm import FCMNotification
 from app.models.generic_respones import BasicReturn
@@ -72,11 +72,15 @@ async def baja_gerente(email_baja: EmailStr, _=Depends(get_current_admin)):
 @router.post("/solicita_baja", response_model=BasicReturn)
 async def solicita_baja_gerente(
         gerente: Gerente = Depends(get_current_gerente)):
+
+    solicitudes = await db.motor.find(NotificacionAdmin, NotificacionAdmin.gerente == gerente.id and NotificacionAdmin.tipo == TipoNotificacion.baja)
+    if len(solicitudes) > 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ya se ha realizado una solicitud previamente.")
     admins = (await db.motor.find(Administrador))
     ind = randint(0, len(admins) - 1)
     responsable = admins[ind]
     solicitud = NotificacionAdmin(responsable=responsable,
-                                  solicita=gerente,
+                                  gerente=gerente,
                                   tipo=TipoNotificacion.baja)
     await db.motor.save(solicitud)
 

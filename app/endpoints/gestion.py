@@ -1,6 +1,7 @@
+from app.enums.tipo_notificacion import TipoNotificacion
+from app.models.notificacion import NotificacionAdmin
 from app.config import FIREBASE_TOKEN
 from pyfcm.fcm import FCMNotification
-from app.models.baja import SolicitudBaja
 from app.models.generic_respones import BasicReturn
 from typing import List, Optional
 
@@ -8,7 +9,6 @@ from fastapi import HTTPException, APIRouter, Depends, Body
 from pydantic import EmailStr
 from starlette import status
 from random import randint
-
 
 from app.db.db import db
 from app.models.administrador import Administrador
@@ -18,8 +18,7 @@ from app.models.user_data import UpdateUser, UserData
 from app.utils.security import encripta_pwd, get_current_admin, get_current_gerente
 from app.utils.validation import existe_email
 
-router = APIRouter(prefix="/gestion",
-                   tags=["Gestión"])
+router = APIRouter(prefix="/gestion", tags=["Gestión"])
 
 push_service = FCMNotification(api_key=FIREBASE_TOKEN)
 
@@ -36,7 +35,8 @@ async def registro_gerente(gerente: Registro, _=Depends(get_current_admin)):
 
 
 @router.put("/edita_gerente", response_model=ResGerente)
-async def edita_gerente(gerente: UpdateUser, current: Gerente = Depends(get_current_gerente)):
+async def edita_gerente(gerente: UpdateUser,
+                        current: Gerente = Depends(get_current_gerente)):
     if gerente.nombre is not None:
         current.nombre = gerente.nombre
     if gerente.apellidos is not None:
@@ -48,7 +48,8 @@ async def edita_gerente(gerente: UpdateUser, current: Gerente = Depends(get_curr
 
 
 @router.post("/registra_administrador", response_model=Administrador)
-async def registro_administrador(admin: Registro, _=Depends(get_current_admin)):
+async def registro_administrador(admin: Registro,
+                                 _=Depends(get_current_admin)):
     if await existe_email(admin.email):
         raise HTTPException(detail="email repetido",
                             status_code=status.HTTP_409_CONFLICT)
@@ -69,11 +70,14 @@ async def baja_gerente(email_baja: EmailStr, _=Depends(get_current_admin)):
 
 
 @router.post("/solicita_baja", response_model=BasicReturn)
-async def solicita_baja_gerente(gerente: Gerente = Depends(get_current_gerente)):
+async def solicita_baja_gerente(
+        gerente: Gerente = Depends(get_current_gerente)):
     admins = (await db.motor.find(Administrador))
-    ind = randint(0, len(admins)-1)
+    ind = randint(0, len(admins) - 1)
     responsable = admins[ind]
-    solicitud = SolicitudBaja(responsable=responsable, solicita=gerente)
+    solicitud = NotificacionAdmin(responsable=responsable,
+                                  solicita=gerente,
+                                  tipo=TipoNotificacion.baja)
     await db.motor.save(solicitud)
 
     if len(responsable.phone_tokens) > 0:
@@ -81,21 +85,17 @@ async def solicita_baja_gerente(gerente: Gerente = Depends(get_current_gerente))
         message_body = f"El usuario con email {gerente.email} ha solicitado darse de baja."
 
         result = push_service.notify_multiple_devices(
-            registration_ids=responsable.phone_tokens, message_title=message_title, message_body=message_body)
+            registration_ids=responsable.phone_tokens,
+            message_title=message_title,
+            message_body=message_body)
         print(result)
     return BasicReturn()
 
 
-@router.get("/solicitudes_baja", response_model=List[ResGerente])
-async def listado_solicitudes(admin: Administrador = Depends(get_current_admin)):
-    listado = await db.motor.find(SolicitudBaja,SolicitudBaja.responsable == admin.id)
-    listado = list(map(lambda x: x.solicita,listado))
-    return listado
-
-
 @router.delete("/baja_admin", response_model=UserData)
 async def baja_admin(email_baja: EmailStr, _=Depends(get_current_admin)):
-    admin = await db.motor.find_one(Administrador, Administrador.email == email_baja)
+    admin = await db.motor.find_one(Administrador,
+                                    Administrador.email == email_baja)
     if admin is None:
         raise HTTPException(detail="Usuario no existe",
                             status_code=status.HTTP_404_NOT_FOUND)
@@ -109,6 +109,8 @@ async def email_en_uso(email: ExistsEmailRequest = Body(...)) -> ExistsEmail:
 
 
 @router.get("/gerentes", response_model=List[UserData])
-async def get_gerentes(salta: int = 0, limite: Optional[int] = None, _=Depends(get_current_admin)):
+async def get_gerentes(salta: int = 0,
+                       limite: Optional[int] = None,
+                       _=Depends(get_current_admin)):
     gerentes = list(await db.motor.find(Gerente, skip=salta, limit=limite))
     return gerentes

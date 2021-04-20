@@ -11,7 +11,7 @@ from app.endpoints.mediciones import router as router_mediciones
 from app.endpoints.notificaciones import router as router_notificaciones
 from app.endpoints.utils import router as router_utils
 
-app = FastAPI()
+app = FastAPI(title="API-Syskaoh",version="0.9")
 
 app.add_event_handler("startup", start_db)
 app.add_event_handler("shutdown", close_mongo_connection)

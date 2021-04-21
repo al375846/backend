@@ -79,11 +79,8 @@ async def notificacion_leida(idn:ObjectId,
 
     if notificacion is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No existe notificación")
-
-    est = await db.motor.find_one(
-        EstablecimientoDB, EstablecimientoDB.gerente == gerente.id and EstablecimientoDB.id == notificacion.establecimiento.id)
     
-    if est is None:
+    if notificacion.establecimiento.gerente.id != gerente.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Notificacion no en propiedad")
     
     notificacion.leido = True

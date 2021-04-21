@@ -1,7 +1,7 @@
 from pydantic.main import BaseModel
 from app.enums.tipo_notificacion import TipoNotificacion
 from typing import Optional
-from app.models.establecimiento import EstablecimientoDB
+from app.models.establecimiento import EstablecimientoDB, EstablecimientoRet
 from app.models.administrador import Administrador
 from app.models.gerente import ResGerente,Gerente
 from datetime import datetime
@@ -14,6 +14,13 @@ class Notificacion(Model):
     contenido: str
     tipo_medicion: TipoMedicion
     establecimiento: EstablecimientoDB = Reference()
+    leido: bool = False
+
+class NotificacionRet(Model):
+    fechaActivacion: datetime = datetime.now()
+    contenido: str
+    tipo_medicion: TipoMedicion
+    establecimiento: EstablecimientoRet = Reference()
     leido: bool = False
 
 class NotificacionAdmin(Model):

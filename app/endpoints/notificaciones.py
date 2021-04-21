@@ -54,7 +54,7 @@ async def listado_notificaciones_admin(
 
 
 @router.get("/gerente", response_model=List[NotificacionRet])
-async def listado_notificaciones_admin(
+async def listado_notificaciones_gerente(
         gerente: Gerente = Depends(get_current_gerente)):
     establecimietos = await db.motor.find(
         EstablecimientoDB, EstablecimientoDB.gerente == gerente.id)

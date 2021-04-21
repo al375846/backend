@@ -1,3 +1,5 @@
+from app.models.generic_respones import BasicReturn
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 from app.models.establecimiento import Establecimiento, EstablecimientoDB
 from app.models.gerente import Gerente
 from app.models.administrador import Administrador
@@ -11,7 +13,7 @@ from app.db.db import db
 from app.config import FIREBASE_TOKEN
 
 from pyfcm import FCMNotification
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException,status
 
 router = APIRouter(prefix="/notificaciones", tags=["notificaciones"])
 
@@ -67,5 +69,24 @@ async def listado_notificaciones_admin(
     for doc in docs:
         est = dict_establecimientos[doc['establecimiento']]
         del doc['establecimiento']
-        listado.append(Notificacion(establecimiento=est, **doc))
+        listado.append(Notificacion(establecimiento=est,id=doc['_id'], **doc))
     return listado
+
+@router.post("/gerente/leido", response_model=BasicReturn)
+async def notificacion_leida(idn:ObjectId,
+        gerente: Gerente = Depends(get_current_gerente)):
+    notificacion = await db.motor.find_one(Notificacion,Notificacion.id == idn)
+
+    if notificacion is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No existe notificación")
+
+    est = await db.motor.find_one(
+        EstablecimientoDB, EstablecimientoDB.gerente == gerente.id and EstablecimientoDB.id == notificacion.establecimiento.id)
+    
+    if est is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Notificacion no en propiedad")
+    
+    notificacion.leido = True
+    await db.motor.save(notificacion)
+    return BasicReturn()
+

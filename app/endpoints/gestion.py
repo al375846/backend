@@ -73,7 +73,7 @@ async def baja_gerente(email_baja: EmailStr, _=Depends(get_current_admin)):
 async def solicita_baja_gerente(
         gerente: Gerente = Depends(get_current_gerente)):
 
-    solicitudes = await db.motor.find(NotificacionAdmin, NotificacionAdmin.gerente == gerente.id and NotificacionAdmin.tipo == TipoNotificacion.baja)
+    solicitudes = await db.motor.find(NotificacionAdmin, {+NotificacionAdmin.gerente : {"$eq":gerente.id}, +NotificacionAdmin.tipo :{ "$eq":TipoNotificacion.baja.value}})
     if len(solicitudes) > 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ya se ha realizado una solicitud previamente.")
     admins = (await db.motor.find(Administrador))

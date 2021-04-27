@@ -53,15 +53,22 @@ async def obtener_mediciones(*, gerente: Gerente = Depends(get_current_gerente))
                 mediciones_aire) > 0 else 0
 
             est = MedicionEstablecimiento(descriptor=establecimiento.descriptor,
-                                          id_establecimiento= establecimiento.id,
                                           aforo_value=ultima_media_aforo,
                                           medias_aforo=mediciones_aforo,
                                           aire_value=ultima_media_aire,
                                           medias_aire=mediciones_aire)
+            # est = MedicionEstablecimiento(descriptor=establecimiento.descriptor,
+            #                               id_establecimiento= establecimiento.id,
+            #                               aforo_value=ultima_media_aforo,
+            #                               medias_aforo=mediciones_aforo,
+            #                               aire_value=ultima_media_aire,
+            #                               medias_aire=mediciones_aire)
             res.append(est)
         else:
             res.append(MedicionEstablecimiento(
-                descriptor=establecimiento.descriptor,id_establecimiento= establecimiento.id))
+                descriptor=establecimiento.descriptor))
+            # res.append(MedicionEstablecimiento(
+            #     descriptor=establecimiento.descriptor,id_establecimiento= establecimiento.id))
     return res
 
 

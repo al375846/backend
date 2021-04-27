@@ -31,6 +31,7 @@ class Media(BaseModel):
 
 class MedicionEstablecimiento(BaseModel):
     descriptor: str
+    id_establecimiento: str
     aforo_value: int = 0
     medias_aforo: List[Media] = []
     aire_value: int = 0

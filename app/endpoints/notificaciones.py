@@ -70,6 +70,9 @@ async def listado_notificaciones_gerente(
         est = dict_establecimientos[doc['establecimiento']]
         del doc['establecimiento']
         listado.append(Notificacion(establecimiento=est,id=doc['_id'], **doc))
+        
+    listado = sorted(listado, key=lambda x: x.fechaActivacion)
+    listado.reverse()
     return listado
 
 @router.post("/gerente/leido", response_model=BasicReturn)

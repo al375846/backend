@@ -10,6 +10,7 @@ from app.endpoints.images import router as router_images
 from app.endpoints.mediciones import router as router_mediciones
 from app.endpoints.notificaciones import router as router_notificaciones
 from app.endpoints.utils import router as router_utils
+from app.endpoints.sugerencias import router as router_sugerencias
 
 app = FastAPI(title="API-Syskaoh",version="0.9")
 
@@ -23,6 +24,7 @@ app.include_router(router_gestion)
 app.include_router(router_images)
 app.include_router(router_mediciones)
 app.include_router(router_notificaciones)
+app.include_router(router_sugerencias)
 app.include_router(router_utils)
 
 

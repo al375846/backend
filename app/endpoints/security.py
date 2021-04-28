@@ -59,7 +59,7 @@ async def login(login_data: LoginData):
     return lrt
 
 
-@router.post("/logout", response_model=bool)
+@router.post("/logout", response_model=BasicReturn)
 async def logout(phone_token:str, gerente:Gerente = Depends(get_current_gerente)):
     if phone_token in gerente.phone_tokens:
         gerente.phone_tokens.remove(phone_token)

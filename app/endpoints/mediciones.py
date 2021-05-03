@@ -23,12 +23,8 @@ async def obtener_ultima_medicion(
     tipo: TipoMedicion,
     gerente: Gerente = Depends(get_current_gerente),
 ):
-    establecimiento = await obten_establecimiento(establecimiento_id)
-    if establecimiento.gerente.id != gerente.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Establecimiento no en propiedad",
-        )
+    establecimiento = await obten_establecimiento(establecimiento_id,gerente)
+   
     if establecimiento.mediciones is None:
         return MedicionRet()
     else:
@@ -88,13 +84,9 @@ async def obtener_mediciones_establecimiento(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{e}")
 
-    establecimiento = await obten_establecimiento(establecimiento_id)
+    establecimiento = await obten_establecimiento(establecimiento_id,gerente)
 
-    if establecimiento.gerente.id != gerente.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Establecimiento no en propiedad",
-        )
+    
 
     if len(establecimiento.mediciones) > 0:
 
@@ -172,7 +164,7 @@ def filtra_fecha(
     )
 
 
-async def obten_establecimiento(establecimiento_id: ObjectId):
+async def obten_establecimiento(establecimiento_id: ObjectId,gerente:Gerente):
     establecimiento = await db.motor.find_one(
         EstablecimientoDB, EstablecimientoDB.id == establecimiento_id
     )
@@ -180,5 +172,10 @@ async def obten_establecimiento(establecimiento_id: ObjectId):
         raise HTTPException(
             detail="Ese establecimiento no existe",
             status_code=status.HTTP_404_NOT_FOUND,
+        )
+    if establecimiento.gerente.id != gerente.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Establecimiento no en propiedad",
         )
     return establecimiento

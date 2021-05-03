@@ -50,7 +50,9 @@ async def listado_notificaciones_admin(
     listado = await db.motor.find(NotificacionAdmin,
                                   NotificacionAdmin.responsable == admin.id)
     #listado = list(map(lambda x: NotificacionAdminRet(**x.dict()),listado))
-    return listado
+    res = sorted(listado,key=lambda x: x.fecha)
+    res = list(reversed(res))
+    return res
 
 
 @router.get("/gerente", response_model=List[NotificacionRet])

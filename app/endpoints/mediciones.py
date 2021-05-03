@@ -1,7 +1,7 @@
 from fastapi.param_functions import Query
 import math
 from datetime import date, datetime
-from typing import List
+from typing import List, overload
 
 from app.db.db import db
 from app.enums.medicion import TipoMedicion
@@ -59,30 +59,7 @@ async def obtener_mediciones(
     for establecimiento in establecimientos:
         if len(establecimiento.mediciones) > 0:
 
-            mediciones_aforo = obten_mediciones(
-                establecimiento.mediciones, TipoMedicion.aforo, fecha
-            )
-
-            ultima_media_aforo = (
-                mediciones_aforo[-1].media if len(mediciones_aforo) > 0 else 0
-            )
-
-            mediciones_aire = obten_mediciones(
-                establecimiento.mediciones, TipoMedicion.aire, fecha
-            )
-
-            ultima_media_aire = (
-                mediciones_aire[-1].media if len(mediciones_aire) > 0 else 0
-            )
-
-            est = MedicionEstablecimiento(
-                descriptor=establecimiento.descriptor,
-                id_establecimiento=str(establecimiento.id),
-                aforo_value=ultima_media_aforo,
-                medias_aforo=mediciones_aforo,
-                aire_value=ultima_media_aire,
-                medias_aire=mediciones_aire,
-            )
+            est = obten_mediciones(fecha, establecimiento)
             res.append(est)
         else:
             res.append(
@@ -94,7 +71,64 @@ async def obtener_mediciones(
     return res
 
 
-def obten_mediciones(mediciones: List[Medicion], tipo: TipoMedicion, fecha: datetime):
+@router.get(
+    "/informe/diario/{establecimiento_id}", response_model=MedicionEstablecimiento
+)
+async def obtener_mediciones_establecimiento(
+    *,
+    day: int = Query(date.today().day, le=31, ge=1),
+    month: int = Query(date.today().month, le=12, ge=1),
+    year: int = Query(date.today().year),
+    establecimiento_id: ObjectId,
+    gerente: Gerente = Depends(get_current_gerente),
+):
+    # Conversión fecha
+    try:
+        fecha = datetime(year, month, day)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{e}")
+
+    establecimiento = await obten_establecimiento(establecimiento_id)
+
+    if establecimiento.gerente.id != gerente.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Establecimiento no en propiedad",
+        )
+
+    if len(establecimiento.mediciones) > 0:
+
+        return obten_mediciones(fecha, establecimiento)
+
+    else:
+
+        return MedicionEstablecimiento(
+            descriptor=establecimiento.descriptor,
+            id_establecimiento=str(establecimiento.id),
+        )
+
+
+def obten_mediciones(fecha, establecimiento) -> MedicionEstablecimiento:
+    mediciones_aforo = filtra_mediciones(
+        establecimiento.mediciones, TipoMedicion.aforo, fecha
+    )
+    ultima_media_aforo = mediciones_aforo[-1].media if len(mediciones_aforo) > 0 else 0
+    mediciones_aire = filtra_mediciones(
+        establecimiento.mediciones, TipoMedicion.aire, fecha
+    )
+    ultima_media_aire = mediciones_aire[-1].media if len(mediciones_aire) > 0 else 0
+    est = MedicionEstablecimiento(
+        descriptor=establecimiento.descriptor,
+        id_establecimiento=str(establecimiento.id),
+        aforo_value=ultima_media_aforo,
+        medias_aforo=mediciones_aforo,
+        aire_value=ultima_media_aire,
+        medias_aire=mediciones_aire,
+    )
+    return est
+
+
+def filtra_mediciones(mediciones: List[Medicion], tipo: TipoMedicion, fecha: datetime):
     return media_mediciones(filtra_dia(mediciones, tipo, fecha=fecha))
 
 

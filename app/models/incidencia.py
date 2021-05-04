@@ -1,9 +1,12 @@
-from odmantic import Model
-from pydantic import EmailStr
+from pydantic.main import BaseModel
+from app.models.gerente import Gerente
+from odmantic import Model, Reference
 
 
 class Incidencia(Model):
     titulo: str
     cuerpo: str
-    email_origen: EmailStr
-    email_destino: EmailStr
+    gerente: Gerente = Reference()
+class NewIncidencia(BaseModel):
+    titulo: str
+    cuerpo: str

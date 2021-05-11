@@ -24,7 +24,7 @@ def random_date(h_i:int = 9,h_f:int = 20):
     return start + datetime.timedelta(seconds=random_second)
 
 @router.post("")
-async def genera_mediciones_falsas(id_establecimiento:ObjectId,n_mediciones:int,h_i:int = 9,h_f:int=20,tipo:TipoMedicion= TipoMedicion.aforo,rango_valores:int = 10):
+async def genera_mediciones_falsas(id_establecimiento:ObjectId,n_mediciones:int,h_i:int = 9,h_f:int=20,tipo:TipoMedicion= TipoMedicion.aforo,rango_valores_tope:int = 10,rango_valores_min:int=0):
     est = await db.motor.find_one(EstablecimientoDB,EstablecimientoDB.id == id_establecimiento)
     if est is not None:
         horas = sorted(random_date(h_i,h_f) for _ in range(n_mediciones))
@@ -34,7 +34,7 @@ async def genera_mediciones_falsas(id_establecimiento:ObjectId,n_mediciones:int,
                 tipo_medicion = tipo,
                 identificador_disp= "FAKE",
                 fecha= h ,
-                contenido = randrange(rango_valores)
+                contenido = randrange(rango_valores_min,rango_valores_tope)
             ))
         est.mediciones += mediciones
         await db.motor.save(est)

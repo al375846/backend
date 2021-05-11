@@ -37,6 +37,8 @@ class MedicionEstablecimiento(BaseModel):
     medias_aforo: List[Media] = []
     aire_value: int = 0
     medias_aire: List[Media] = []
+    mascarillas_value: int = 0
+    medias_mascarillas: List[Media] = []
 
 
 class InformeMedicionRet(BaseModel):

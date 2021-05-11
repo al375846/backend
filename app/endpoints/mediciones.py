@@ -28,7 +28,7 @@ async def obtener_ultima_medicion(
     if establecimiento.mediciones is None:
         return MedicionRet()
     else:
-        mediciones = filtra_fecha(establecimiento.mediciones, tipo)
+        mediciones = filtra_dia(establecimiento.mediciones, tipo,fecha=datetime.now())
         ultima = mediciones[-1].contenido if len(mediciones) > 0 else 0
         return MedicionRet(contenido=ultima)
 
@@ -109,6 +109,10 @@ def obten_mediciones(fecha, establecimiento) -> MedicionEstablecimiento:
         establecimiento.mediciones, TipoMedicion.aire, fecha
     )
     ultima_media_aire = mediciones_aire[-1].media if len(mediciones_aire) > 0 else 0
+    mediciones_mascarillas = filtra_mediciones(
+        establecimiento.mediciones, TipoMedicion.mascarillas, fecha
+    )
+    ultima_media_mascarillas = mediciones_mascarillas[-1].media if len(mediciones_mascarillas) > 0 else 0
     est = MedicionEstablecimiento(
         descriptor=establecimiento.descriptor,
         id_establecimiento=str(establecimiento.id),
@@ -116,6 +120,8 @@ def obten_mediciones(fecha, establecimiento) -> MedicionEstablecimiento:
         medias_aforo=mediciones_aforo,
         aire_value=ultima_media_aire,
         medias_aire=mediciones_aire,
+        mascarillas_value=ultima_media_mascarillas,
+        medias_mascarillas=mediciones_mascarillas,
     )
     return est
 

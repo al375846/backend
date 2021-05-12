@@ -15,6 +15,7 @@ class Notificacion(Model):
     tipo_medicion: TipoMedicion
     establecimiento: EstablecimientoDB = Reference()
     leido: bool = False
+    id_img:Optional[str]
 
 class NotificacionRet(Model):
     fechaActivacion: datetime = datetime.now()

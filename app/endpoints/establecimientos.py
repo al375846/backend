@@ -56,6 +56,14 @@ async def borrar_establecimiento(establecimiento_id: ObjectId, gerente: Gerente 
     establecimiento = await db.motor.find_one(EstablecimientoDB, EstablecimientoDB.id == establecimiento_id)
     valida(establecimiento=establecimiento, gerente_id=gerente.id)
     await db.motor.delete(establecimiento)
+
+    disps = await db.motor.find(DispositivoDB,DispositivoDB.establecimiento == str(establecimiento_id) )
+
+    for disp in disps:
+        disp.establecimiento = None
+
+    await db.motor.save_all(disps)
+   
     return establecimiento
 
 

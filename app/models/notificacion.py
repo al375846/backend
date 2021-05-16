@@ -3,7 +3,7 @@ from app.enums.tipo_notificacion import TipoNotificacion
 from typing import Optional
 from app.models.establecimiento import EstablecimientoDB, EstablecimientoRet
 from app.models.administrador import Administrador
-from app.models.gerente import ResGerente,Gerente
+from app.models.gerente import ResGerente,Gerente, ResGerenteBM
 from datetime import datetime
 from app.enums.medicion import TipoMedicion
 from odmantic import Model, Reference
@@ -32,7 +32,7 @@ class NotificacionAdmin(Model):
     fecha: datetime = datetime.now()
 
 class NotificacionAdminRet(BaseModel):
-    gerente: Optional[Gerente]
+    gerente: Optional[ResGerenteBM]
     tipo:TipoNotificacion
     contenido: Optional[str]
     fecha: datetime 

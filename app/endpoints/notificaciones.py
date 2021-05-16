@@ -1,7 +1,7 @@
 from app.models.generic_respones import BasicReturn
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 from app.models.establecimiento import Establecimiento, EstablecimientoDB
-from app.models.gerente import Gerente
+from app.models.gerente import Gerente, ResGerente, ResGerenteBM
 from app.models.administrador import Administrador
 from typing import List
 from app.utils.security import get_current_admin, get_current_gerente
@@ -61,8 +61,14 @@ async def listado_notificaciones_admin(
         }
     }).to_list(length=None)
 
-    gerentes = {str(g['_id']):Gerente(**g) for g in docs}
-    print(list(ids))
+    gerentes = {str(g['_id']):Gerente( **g) for g in docs}
+    gerentes = {}
+    for g in docs:
+        u = ResGerenteBM(id =str(g['_id']),  **g)
+        
+        gerentes[str(g['_id'])] = u
+        
+
     print(gerentes)
     res = [NotificacionAdminRet(gerente=gerentes.get(b.gerente),tipo = b.tipo, contenido = b.contenido,fecha = b.fecha) for b in res]
 

@@ -1,3 +1,5 @@
+from app.endpoints.establecimientos import borrar_establecimiento
+from app.models.establecimiento import EstablecimientoDB
 from app.enums.tipo_notificacion import TipoNotificacion
 from app.models.notificacion import Notificacion, NotificacionAdmin
 from app.config import FIREBASE_TOKEN
@@ -68,7 +70,13 @@ async def baja_gerente(email_baja: EmailStr, _=Depends(get_current_admin)):
         raise HTTPException(
             detail="Usuario no existe", status_code=status.HTTP_404_NOT_FOUND
         )
+    ests = await db.motor.find(EstablecimientoDB, EstablecimientoDB.gerente == gerente.id)
+    for est in ests:
+       await borrar_establecimiento(est.id,gerente)
     await db.motor.delete(gerente)
+    noti = await db.motor.find(NotificacionAdmin,NotificacionAdmin.gerente == str(gerente.id))
+    for n in noti:
+        await db.motor.delete(n)
     return gerente
 
 
@@ -78,15 +86,15 @@ async def solicita_baja_gerente(gerente: Gerente = Depends(get_current_gerente))
     solicitudes = await db.motor.find(
         NotificacionAdmin,
         {
-            +NotificacionAdmin.gerente: {"$eq": gerente.id},
-            +NotificacionAdmin.tipo: {"$eq": TipoNotificacion.baja.value},
+            +NotificacionAdmin.gerente: {"$eq": str(gerente.id)}
         },
     )
-    # if len(solicitudes) > 0:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST,
-    #         detail="Ya se ha realizado una solicitud previamente.",
-    #     )
+    solicitudes = [s for s in solicitudes if s.tipo == TipoNotificacion.baja]
+    if len(solicitudes) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ya se ha realizado una solicitud previamente.",
+        )
     admins = await db.motor.find(Administrador)
     ind = randint(0, len(admins) - 1)
     responsable = admins[ind]

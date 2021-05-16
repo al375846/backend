@@ -13,8 +13,8 @@ from datetime import date
 router = APIRouter(prefix="/utils", tags=["Utils"])
 
 
-def random_date(dia,mes,ano,h_i: int = 9, h_f: int = 20):
-    today = datetime.datetime(ano,mes,dia)
+def random_date(dia: int, mes: int, ano: int, h_i: int = 9, h_f: int = 20):
+    today = datetime.datetime(ano, mes, dia)
     start = datetime.datetime(today.year, today.month, today.day, h_i)
     end = datetime.datetime(today.year, today.month, today.day, h_f)
 
@@ -42,7 +42,9 @@ async def genera_mediciones_falsas(
         EstablecimientoDB, EstablecimientoDB.id == id_establecimiento
     )
     if est is not None:
-        horas = sorted(random_date(dia,mes,ano,h_i, h_f) for _ in range(n_mediciones))
+        horas = sorted(
+            random_date(dia, mes, ano, h_i, h_f) for _ in range(n_mediciones)
+        )
         mediciones = []
         for h in horas:
             mediciones.append(

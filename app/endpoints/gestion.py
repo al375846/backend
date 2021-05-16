@@ -1,7 +1,7 @@
 from app.endpoints.establecimientos import borrar_establecimiento
 from app.models.establecimiento import EstablecimientoDB
 from app.enums.tipo_notificacion import TipoNotificacion
-from app.models.notificacion import Notificacion, NotificacionAdmin
+from app.models.notificacion import NotificacionAdmin
 from app.config import FIREBASE_TOKEN
 from pyfcm.fcm import FCMNotification
 from app.models.generic_respones import BasicReturn

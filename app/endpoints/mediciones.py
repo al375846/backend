@@ -1,7 +1,7 @@
 from fastapi.param_functions import Query
 import math
 from datetime import date, datetime
-from typing import List, overload
+from typing import List
 
 from app.db.db import db
 from app.enums.medicion import TipoMedicion

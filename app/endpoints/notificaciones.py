@@ -66,12 +66,9 @@ async def listado_notificaciones_admin(
 
     docs = await gecoll.find({"_id": {"$in": list(ids)}}).to_list(length=None)
 
-    gerentes = {str(g["_id"]): Gerente(**g) for g in docs}
     gerentes = {}
     for g in docs:
-        u = ResGerenteBM(id=str(g["_id"]), **g)
-
-        gerentes[str(g["_id"])] = u
+        gerentes[str(g["_id"])] = ResGerenteBM(id=str(g["_id"]), **g)
 
     res = [
         NotificacionAdminRet(

@@ -82,18 +82,18 @@ async def solicita_baja_gerente(gerente: Gerente = Depends(get_current_gerente))
             +NotificacionAdmin.tipo: {"$eq": TipoNotificacion.baja.value},
         },
     )
-    if len(solicitudes) > 0:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ya se ha realizado una solicitud previamente.",
-        )
+    # if len(solicitudes) > 0:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail="Ya se ha realizado una solicitud previamente.",
+    #     )
     admins = await db.motor.find(Administrador)
     ind = randint(0, len(admins) - 1)
     responsable = admins[ind]
     solicitud = NotificacionAdmin(
         responsable=responsable,
         contenido=f"El usuario {gerente.nombre} ha realizado una solicitud para darse de baja en la plataforma.",
-        gerente=gerente,
+        gerente=str(gerente.id),
         tipo=TipoNotificacion.baja,
     )
     await db.motor.save(solicitud)

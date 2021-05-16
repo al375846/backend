@@ -26,13 +26,13 @@ class NotificacionRet(Model):
 
 class NotificacionAdmin(Model):
     responsable: Administrador = Reference()
-    gerente: Gerente = Reference()
+    gerente: Optional[str] 
     tipo:TipoNotificacion
     contenido: Optional[str]
     fecha: datetime = datetime.now()
 
-class NotificacionAdminRet(Model):
-    gerente: ResGerente = Reference()
+class NotificacionAdminRet(BaseModel):
+    gerente: Optional[Gerente]
     tipo:TipoNotificacion
     contenido: Optional[str]
     fecha: datetime 

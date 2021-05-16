@@ -52,6 +52,20 @@ async def listado_notificaciones_admin(
     #listado = list(map(lambda x: NotificacionAdminRet(**x.dict()),listado))
     res = sorted(listado,key=lambda x: x.fecha)
     res = list(reversed(res))
+    ids = {ObjectId(g.gerente) for g in res}
+    gecoll = db.motor.get_collection(Gerente)
+
+    docs = await gecoll.find({
+        '_id': {
+            "$in": list(ids)
+        }
+    }).to_list(length=None)
+
+    gerentes = {str(g['_id']):Gerente(**g) for g in docs}
+    print(list(ids))
+    print(gerentes)
+    res = [NotificacionAdminRet(gerente=gerentes.get(b.gerente),tipo = b.tipo, contenido = b.contenido,fecha = b.fecha) for b in res]
+
     return res
 
 

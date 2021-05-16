@@ -31,7 +31,7 @@ async def newSugerencia(
     responsable = admins[ind]
     solicitud = NotificacionAdmin(
         responsable=responsable,
-        gerente=gerente,
+        gerente=str(gerente.id),
         contenido=contenido,
         tipo=TipoNotificacion.sugerencia,
     )

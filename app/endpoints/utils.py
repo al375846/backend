@@ -20,7 +20,7 @@ def random_date(dia: int, mes: int, ano: int, h_i: int = 9, h_f: int = 20):
 
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
-    random_second = randrange(int_delta)
+    random_second = randrange(int_delta+1)
     return start + datetime.timedelta(seconds=random_second)
 
 

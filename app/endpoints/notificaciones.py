@@ -1,7 +1,6 @@
 from app.models.generic_respones import BasicReturn
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
-from app.models.establecimiento import Establecimiento, EstablecimientoDB
-from app.models.gerente import Gerente, ResGerente, ResGerenteBM
+from app.models.establecimiento import  EstablecimientoDB
+from app.models.gerente import Gerente, ResGerenteBM
 from app.models.administrador import Administrador
 from typing import List
 from app.utils.security import get_current_admin, get_current_gerente

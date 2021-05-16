@@ -52,7 +52,7 @@ async def genera_mediciones_falsas(
                     tipo_medicion=tipo,
                     identificador_disp="FAKE",
                     fecha=h,
-                    contenido=randrange(rango_valores_min, rango_valores_tope),
+                    contenido=rango_valores_min if rango_valores_min == rango_valores_tope else randrange(rango_valores_min, rango_valores_tope),
                 )
             )
         est.mediciones += mediciones

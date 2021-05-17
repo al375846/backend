@@ -28,16 +28,3 @@ def send_mail( incidencia: Incidencia):
     server.quit()
 
 
-# send_mail(Gerente(
-#   nombre = 'Jaume',
-#   apellidos = 'Barrios Forner',
-#   email = 'al375837@uji.es',
-#   telefono = '1231231',
-#   password = "",
-#   username = "jbari3o",
-# ),
-# """
-# algo no funciona
-
-# QUIERO AYUDAAAAA
-# """)
